@@ -25,7 +25,9 @@
         android:textSize="@dimen/text_size_small"
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
-        android:lineSpacingExtra="@dimen/line_spacing_normal"/>
+        android:lineSpacingExtra="@dimen/line_spacing_normal"
+        android:textColorLink="@android:color/holo_blue_dark"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"

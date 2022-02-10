@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 version = project.property('versionName')
 group = project.property('sdk_group')
@@ -11,10 +11,11 @@ android {
     resourcePrefix 'webimsdk__'
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 30
         versionName version
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'proguard-rules.pro'
     }
     buildTypes {
     }
@@ -32,6 +33,9 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.2.0'
     api 'com.squareup.retrofit2:converter-gson:2.2.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.5.0'
+    implementation 'net.zetetic:android-database-sqlcipher:4.4.3@aar'
+    implementation "androidx.sqlite:sqlite:2.1.0"
+    implementation 'androidx.security:security-crypto:1.1.0-alpha01'
     testImplementation 'junit:junit:4.13.1'
     testImplementation 'org.mockito:mockito-core:3.3.3'
 }
@@ -39,47 +43,50 @@ dependencies {
 def siteUrl = project.property('websiteUrl')     // Homepage URL of the library
 def gitUrl = project.property('gitUrl')          // Git repository URL
 
-bintray {
-    user = project.property('bintray.user')
-    key = project.property('bintray.apikey')
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-    configurations = ['archives']
-    publish = true
-    override = project.property('bintray.override').asBoolean()
-    pkg {
-        repo = project.property('bintray.pkg.repo')
-        userOrg = project.property('bintray.pkg.userOrg')
-        name = project.property('bintray.pkg.name')
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ['Apache-2.0']
-    }
-}
+            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
 
-install {
-    repositories.mavenInstaller {
-        pom.project {
-            packaging 'aar'
-            name 'Webim SDK Android Library'
-            url siteUrl
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                }
+            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
             }
-            developers {
-                developer {
-                    id 'vbeskrovnyy'
-                    name 'Vladislav Beskrovnyy'
-                    email 'vbeskrovnyy@webim.ru'
-                }
-            }
-            scm {
-                connection gitUrl
-                developerConnection gitUrl
+
+            pom.project {
+                name 'Webim Mobile SDK for Android'
+                packaging 'jar'
+                description 'Webim Mobile SDK enables Android developers to implement chats into their mobile apps for communications between users and agents.'
                 url siteUrl
 
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'mshengeliia'
+                        name 'Maksim Shengeliia'
+                        email 'mshengeliia@webim-team.ru'
+                    }
+                    developer {
+                        id 'nkaberov'
+                        name 'Nikita Kaberov'
+                        email 'nkaberov@webim.ru'
+                    }
+                }
             }
         }
     }
@@ -90,17 +97,12 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
 artifacts {
     archives sourcesJar
+}
+
+signing {
+    sign configurations.archives
 }
 
 task findConventions {

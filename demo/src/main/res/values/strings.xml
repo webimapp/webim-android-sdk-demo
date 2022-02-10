@@ -27,12 +27,13 @@
     <string name="file_chooser_title">Выберите файл для загрузки</string>
     <string name="file_chooser_not_found">Для загрузки файла, пожалуйста, установите файловый менеджер</string>
     <string name="file_selection_failed">Не удалось выбрать файл</string>
-    <string name="file_upload_failed_size">Не удалось загрузить файл: превышен максимальный размер файла</string>
-    <string name="file_upload_failed_type">Не удалось загрузить файл: тип файла не разрешен сервером</string>
+    <string name="file_upload_failed_size">Не удалось отправить файл: превышен максимальный размер файла</string>
+    <string name="file_upload_failed_type">Не удалось отправить файл: тип файла не разрешен сервером</string>
     <string name="file_upload_connection_timeout">Превышен таймаут отправки файла</string>
-    <string name="file_upload_failed_name">Не удалось загрузить файл: ошибка в имени файла</string>
-    <string name="file_upload_failed_unknown">Не удалось загрузить файл: неизвестная ошибка</string>
-    <string name="file_upload_failed_unauthorized">Не удалось загрузить файл: посетитель не авторизован</string>
+    <string name="file_upload_failed_name">Не удалось отправить файл: ошибка в имени файла</string>
+    <string name="file_upload_failed_unknown">Не удалось отправить файл: неизвестная ошибка</string>
+    <string name="file_upload_failed_unauthorized">Не удалось отправить файл: посетитель не авторизован</string>
+    <string name="file_upload_failed_empty">Не удалось отправить файл: пустой файл</string>
     <string name="file_upload_message_text">Отправка файла…</string>
     <string name="file_send">Отправил(а) файл:\n</string>
     <string name="error_user_banned_header">Вы забанены оператором</string>
@@ -50,6 +51,7 @@
     <string name="push_operator_accepted">Оператор %1$s присоединился к диалогу.</string>
     <string name="push_operator_file">%1$s отправил(а) файл %2$s</string>
     <string name="push_operator_message">%1$s:\n%2$s</string>
+    <string name="push_rate_operator">Оценить оператора</string>
     <string name="prefs_notifications_summary">Включить FCM пуш-уведомления для новых сообщений от оператора</string>
     <string name="prefs_notifications_title">Уведомления</string>
     <string name="prefs_account_title">Аккаунт</string>
@@ -68,7 +70,7 @@
     <string name="file_transfer_by_operator">"Передача файла "</string>
     <string name="def_image_name">image_%1$d.jpg</string>
     <string name="saved_file">Файл %1$s сохранён</string>
-    <string name="saving_failed">Не удалось загрузить файл</string>
+    <string name="saving_failed">Не удалось отправить файл</string>
 
     <string name="send_file">Отправить файл</string>
     <string name="rate_operator">Оценить оператора</string>

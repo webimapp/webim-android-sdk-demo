@@ -8,7 +8,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.webimapp.android.demo.client.WebimChatActivity">
+    tools:context="ru.webim.android.demo.client.WebimChatActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
@@ -101,7 +101,6 @@
             android:src="@drawable/arrow_drop_down"
             android:tint="@color/itemsBorder"
             android:visibility="gone"
-            app:backgroundTint="@color/common_google_signin_btn_text_dark_default"
             app:fabSize="mini" />
 
         <TextView
@@ -506,18 +505,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/white"
-            android:padding="10dp"
-            android:paddingBottom="5dp">
+            android:gravity="center_vertical">
 
             <ImageButton
                 android:id="@+id/imageButtonChatMenu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
                 android:layout_weight="0.05"
                 android:background="@null"
                 android:gravity="center"
-                android:padding="7dp"
+                android:layout_gravity="bottom"
+                android:padding="12dp"
                 android:scaleType="center"
                 android:src="@drawable/ic_plus"
                 android:tint="@color/itemsBorder"
@@ -537,8 +535,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:ems="10"
@@ -549,6 +545,10 @@
                 android:minLines="1"
                 android:nextFocusLeft="@id/editTextChatMessage"
                 android:nextFocusUp="@id/editTextChatMessage"
+                android:paddingStart="10dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="12dp"
                 android:scrollHorizontally="false"
                 android:singleLine="false"
                 android:textColor="@color/colorText"
@@ -559,13 +559,14 @@
                 android:id="@+id/imageButtonSendMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
                 android:layout_weight="0.05"
                 android:background="@null"
                 android:contentDescription="@string/content_desc_send_message"
                 android:gravity="center"
-                android:padding="7dp"
+                android:padding="12dp"
                 android:scaleType="center"
+                android:alpha="0.5"
+                android:layout_gravity="bottom"
                 android:src="@drawable/ic_send_message"
                 android:tint="@color/itemsBorder" />
 
@@ -573,15 +574,13 @@
                 android:id="@+id/imageButtonAcceptChanges"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
                 android:layout_weight="0.05"
                 android:background="@null"
                 android:contentDescription="@string/content_desc_send_message"
                 android:gravity="center"
-                android:paddingLeft="2dp"
-                android:paddingRight="2dp"
-                android:paddingBottom="2dp"
+                android:padding="12dp"
                 android:scaleType="center"
+                android:layout_gravity="bottom"
                 android:src="@drawable/ic_circle_accept"
                 android:tint="@color/itemsBorder"
                 android:visibility="gone" />

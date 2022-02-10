@@ -12,8 +12,8 @@
     android:paddingRight="20dp"
     android:paddingBottom="16dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.webimapp.android.demo.client.MainActivity"
-    tools:showIn="@layout/activity_main">
+    tools:context="ru.webim.android.demo.client.MainActivity"
+    tools:showIn="@layout/fragment_main">
 
     <ImageView
         android:id="@+id/imageViewLogo"

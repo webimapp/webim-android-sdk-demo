@@ -252,6 +252,7 @@
                 android:layout_height="match_parent"
                 android:text="@string/default_text"
                 android:textColor="@color/sendingMsgText"
+                android:textColorLink="@color/sendingMsgText"
                 android:lineSpacingExtra="@dimen/line_spacing_normal"/>
         </LinearLayout>
     </LinearLayout>

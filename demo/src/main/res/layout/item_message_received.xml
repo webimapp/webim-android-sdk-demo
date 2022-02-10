@@ -291,6 +291,7 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:text="@string/default_text"
+                android:textColorLink="@android:color/holo_blue_dark"
                 android:textColor="@color/receivedMsgText"
                 android:lineSpacingExtra="@dimen/line_spacing_normal" />
         </LinearLayout>

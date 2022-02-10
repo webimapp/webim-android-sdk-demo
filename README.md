@@ -7,10 +7,10 @@ Application demonstrates capabilities of *Webim Android SDK*. This application i
 On the one hand this application was created to demonstrate capabilities of our SDK, on the other hand to show how to use our SDK correctly. While integrating chat into your own application be guided by this demo application - it can greatly simplify the integration.
 
 ## SDK Installation
-Supported Android 4.+ (Android API 15+) versions
+Supported Android 5.+ (Android API 21+) versions
 To start using *Webim Android SDK* add a dependency to build.gradle of your application.
 ```
-compile 'com.webimapp.sdk:webimclientsdkandroid:3.36.2'
+implementation "ru.webim.sdk:webimclientsdkandroid:X.XX.X"
 ```
 Also add to AndroidManifest.xml the following permissions:
 ```

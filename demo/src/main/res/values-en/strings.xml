@@ -31,6 +31,7 @@
     <string name="file_upload_failed_type">File upload failed: file type not allowed by server</string>
     <string name="file_upload_failed_unknown">Unable to load file: unknown error</string>
     <string name="file_upload_failed_unauthorized">Failed to upload file: visitor is not logged in</string>
+    <string name="file_upload_failed_empty">Failed to upload file: empty file</string>
     <string name="file_upload_message_text">Sending file…</string>
     <string name="file_send">Sent a file:\n</string>
     <string name="error_user_banned_header">You are banned by the agent</string>
@@ -48,6 +49,7 @@
     <string name="push_operator_accepted">The agent %1$s has joined the dialogue.</string>
     <string name="push_operator_file">%1$s sent a file %2$s</string>
     <string name="push_operator_message">%1$s: %2$s</string>
+    <string name="push_rate_operator">Rate operator</string>
     <string name="prefs_notifications_summary">Enable FCM push notifications for new messages from the agent</string>
     <string name="prefs_notifications_title">Notifications</string>
     <string name="prefs_account_title">Account</string>
