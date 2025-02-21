@@ -3,10 +3,11 @@ package ru.webim.android.sdk.impl;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.List;
+import java.util.Objects;
+
 import ru.webim.android.sdk.Message;
 import ru.webim.android.sdk.Operator;
-
-import java.util.List;
 
 public class MessageImpl implements Message, TimeMicrosHolder, Comparable<MessageImpl> {
 
@@ -236,6 +237,12 @@ public class MessageImpl implements Message, TimeMicrosHolder, Comparable<Messag
         return o instanceof Message && this.getClientSideId().equals(((Message) o).getClientSideId());
     }
 
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(avatarUrl, clientSideId, sessionId, keyboard, keyboardRequest, operatorId, senderName, serverUrl, timeMicros, type, text, sendStatus, attachment, rawText, serverSideId, savedInHistory, readByOperator, canBeEdited, canBeReplied, edited, canVisitorReact, canVisitorChangeReaction, reaction, quote, sticker);
+    }
+
     @Override
     public long getTime() {
         return timeMicros / 1000;
@@ -298,7 +305,9 @@ public class MessageImpl implements Message, TimeMicrosHolder, Comparable<Messag
                 && serverSideId.equals(history.serverSideId)
                 && savedInHistory == history.savedInHistory
                 && text.equals(history.text)
-                && edited == history.edited;
+                && edited == history.edited
+                && InternalUtils.equals(keyboard, history.keyboard)
+                && InternalUtils.equals(attachment, history.attachment);
     }
 
     public MessageImpl mergeWithHistoryMessage(MessageImpl history) {
@@ -315,13 +324,13 @@ public class MessageImpl implements Message, TimeMicrosHolder, Comparable<Messag
             serverSideId,
             rawText,
             history.savedInHistory,
-            attachment,
+            history.attachment,
             readByOperator,
             canBeEdited,
             canBeReplied,
             history.edited,
             quote,
-            keyboard,
+            history.keyboard,
             keyboardRequest,
             sticker,
             reaction,
@@ -332,21 +341,33 @@ public class MessageImpl implements Message, TimeMicrosHolder, Comparable<Messag
 
     @Override
     public String toString() {
-        return "MessageImpl{"
-                + "\nserverUrl='" + serverUrl + '\''
-                + ", \nid=" + clientSideId
-                + ", \noperatorId=" + operatorId
-                + ", \navatarUrl='" + avatarUrl + '\''
-                + ", \nsenderName='" + senderName + '\''
-                + ", \ntype=" + type
-                + ", \ntext='" + text + '\''
-                + ", \ntimeMicros=" + timeMicros
-                + ", \nattachment=" + attachment
-                + ", \nrawText='" + rawText + '\''
-                + ", \nisHistoryMessage=" + savedInHistory
-                + ", \ncurrentChatId='" + serverSideId + '\''
-                + ", \ncanBeEdited=" + canBeEdited
-                + "\n}";
+        return "MessageImpl{" +
+                "avatarUrl='" + avatarUrl + '\'' +
+                ", clientSideId=" + clientSideId +
+                ", sessionId='" + sessionId + '\'' +
+                ", keyboard=" + keyboard +
+                ", keyboardRequest=" + keyboardRequest +
+                ", operatorId=" + operatorId +
+                ", senderName='" + senderName + '\'' +
+                ", serverUrl='" + serverUrl + '\'' +
+                ", timeMicros=" + timeMicros +
+                ", type=" + type +
+                ", text='" + text + '\'' +
+                ", sendStatus=" + sendStatus +
+                ", attachment=" + attachment +
+                ", rawText='" + rawText + '\'' +
+                ", serverSideId='" + serverSideId + '\'' +
+                ", savedInHistory=" + savedInHistory +
+                ", readByOperator=" + readByOperator +
+                ", canBeEdited=" + canBeEdited +
+                ", canBeReplied=" + canBeReplied +
+                ", edited=" + edited +
+                ", canVisitorReact=" + canVisitorReact +
+                ", canVisitorChangeReaction=" + canVisitorChangeReaction +
+                ", reaction=" + reaction +
+                ", quote=" + quote +
+                ", sticker=" + sticker +
+                '}';
     }
 
     @Override
@@ -407,6 +428,19 @@ public class MessageImpl implements Message, TimeMicrosHolder, Comparable<Messag
         @NonNull
         public AttachmentState getState() {
             return state;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            AttachmentImpl that = (AttachmentImpl) o;
+            return downloadProgress == that.downloadProgress && Objects.equals(errorMessage, that.errorMessage) && Objects.equals(errorType, that.errorType) && fileInfo.equals(that.fileInfo) && filesInfo.equals(that.filesInfo) && state == that.state;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(downloadProgress, errorMessage, errorType, fileInfo, filesInfo, state);
         }
     }
 
@@ -474,6 +508,19 @@ public class MessageImpl implements Message, TimeMicrosHolder, Comparable<Messag
                 }
             }
             return url;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            FileInfoImpl fileInfo = (FileInfoImpl) o;
+            return size == fileInfo.size && Objects.equals(contentType, fileInfo.contentType) && filename.equals(fileInfo.filename) && Objects.equals(imageInfo, fileInfo.imageInfo) && Objects.equals(url, fileInfo.url) && Objects.equals(guid, fileInfo.guid) && fileUrlCreator.equals(fileInfo.fileUrlCreator);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(contentType, filename, imageInfo, size, url, guid, fileUrlCreator);
         }
     }
 
@@ -624,12 +671,12 @@ public class MessageImpl implements Message, TimeMicrosHolder, Comparable<Messag
 
     public static class KeyboardImpl implements Keyboard {
         private final @NonNull Keyboard.State state;
-        private final @Nullable List<List<KeyboardButtons>> keyboardButton;
+        private final @Nullable List<List<KeyboardButton>> keyboardButton;
         private final @Nullable KeyboardResponse keyboardResponse;
 
         public KeyboardImpl(
                 @NonNull Keyboard.State state,
-                @Nullable List<List<KeyboardButtons>> keyboardButton,
+                @Nullable List<List<KeyboardButton>> keyboardButton,
                 @Nullable KeyboardResponse keyboardResponse) {
             this.state = state;
             this.keyboardButton = keyboardButton;
@@ -638,7 +685,7 @@ public class MessageImpl implements Message, TimeMicrosHolder, Comparable<Messag
 
         @Nullable
         @Override
-        public List<List<KeyboardButtons>> getButtons() {
+        public List<List<KeyboardButton>> getButtons() {
             return keyboardButton;
         }
 
@@ -653,17 +700,46 @@ public class MessageImpl implements Message, TimeMicrosHolder, Comparable<Messag
         public KeyboardResponse getKeyboardResponse() {
             return keyboardResponse;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            KeyboardImpl keyboard = (KeyboardImpl) o;
+            return state == keyboard.state && Objects.equals(keyboardButton, keyboard.keyboardButton) && Objects.equals(keyboardResponse, keyboard.keyboardResponse);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(state, keyboardButton, keyboardResponse);
+        }
+
+        @Override
+        public String toString() {
+            return "KeyboardImpl{" +
+                    "state=" + state +
+                    ", keyboardButton=" + keyboardButton +
+                    ", keyboardResponse=" + keyboardResponse +
+                    '}';
+        }
     }
 
-    public static class KeyboardButtonsImpl implements KeyboardButtons {
+    public static class KeyboardButtonImpl implements KeyboardButton {
         private final @NonNull String id;
         private final @NonNull String text;
         private final @Nullable Configuration configuration;
+        private final @Nullable Params params;
 
-        public KeyboardButtonsImpl(@NonNull String id, @NonNull String text, @Nullable Configuration configuration) {
+        public KeyboardButtonImpl(
+            @NonNull String id,
+            @NonNull String text,
+            @Nullable Configuration configuration,
+            @Nullable Params params) {
+
             this.id = id;
             this.text = text;
             this.configuration = configuration;
+            this.params = params;
         }
 
         @NonNull
@@ -683,9 +759,38 @@ public class MessageImpl implements Message, TimeMicrosHolder, Comparable<Messag
         public Configuration getConfiguration() {
             return configuration;
         }
+
+        @Nullable
+        @Override
+        public Params getParams() {
+            return params;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            KeyboardButtonImpl that = (KeyboardButtonImpl) o;
+            return id.equals(that.id) && text.equals(that.text) && Objects.equals(configuration, that.configuration) && Objects.equals(params, that.params);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, text, configuration, params);
+        }
+
+        @Override
+        public String toString() {
+            return "KeyboardButtonImpl{" +
+                    "id='" + id + '\'' +
+                    ", text='" + text + '\'' +
+                    ", configuration=" + configuration +
+                    ", params=" + params +
+                    '}';
+        }
     }
 
-    public static class ConfigurationImpl implements KeyboardButtons.Configuration {
+    public static class ConfigurationImpl implements KeyboardButton.Configuration {
         private final @NonNull Type type;
         private final @NonNull State state;
         private final @NonNull String data;
@@ -713,6 +818,77 @@ public class MessageImpl implements Message, TimeMicrosHolder, Comparable<Messag
         public State getState() {
             return state;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ConfigurationImpl that = (ConfigurationImpl) o;
+            return type == that.type && state == that.state && data.equals(that.data);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(type, state, data);
+        }
+
+        @Override
+        public String toString() {
+            return "ConfigurationImpl{" +
+                    "type=" + type +
+                    ", state=" + state +
+                    ", data='" + data + '\'' +
+                    '}';
+        }
+    }
+
+    public static class ParamsImpl implements KeyboardButton.Params {
+        private final Type type;
+        private final String action;
+        private final String color;
+
+        public ParamsImpl(Type type, String action, String color) {
+            this.type = type;
+            this.action = action;
+            this.color = color;
+        }
+
+        @Override
+        public Type getType() {
+            return type;
+        }
+
+        @Override
+        public String getAction() {
+            return action;
+        }
+
+        @Override
+        public String getColor() {
+            return color;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ParamsImpl params = (ParamsImpl) o;
+            return type == params.type && Objects.equals(action, params.action) && Objects.equals(color, params.color);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(type, action, color);
+        }
+
+        @Override
+        public String toString() {
+            return "ParamsImpl{" +
+                    "type=" + type +
+                    ", action='" + action + '\'' +
+                    ", color='" + color + '\'' +
+                    '}';
+        }
     }
 
     public static class KeyboardResponseImpl implements KeyboardResponse {
@@ -737,22 +913,37 @@ public class MessageImpl implements Message, TimeMicrosHolder, Comparable<Messag
         public String getMessageId() {
             return messageId;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            KeyboardResponseImpl that = (KeyboardResponseImpl) o;
+            return buttonId.equals(that.buttonId) && messageId.equals(that.messageId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(buttonId, messageId);
+        }
     }
 
     public static class KeyboardRequestImpl implements Message.KeyboardRequest {
-        private final @NonNull KeyboardButtons button;
-        private final @NonNull String messageId;
+        @NonNull
+        private final KeyboardButton button;
+        @NonNull
+        private final String messageId;
 
         public KeyboardRequestImpl(
-                @NonNull KeyboardButtons button,
-                @NonNull String messageId) {
+            @NonNull KeyboardButton button,
+            @NonNull String messageId) {
             this.button = button;
             this.messageId = messageId;
         }
 
         @NonNull
         @Override
-        public KeyboardButtons getButtons() {
+        public KeyboardButton getButtons() {
             return button;
         }
 

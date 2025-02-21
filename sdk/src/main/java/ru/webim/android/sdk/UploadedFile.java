@@ -4,8 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
- * Abstract file that was uploaded to the server ({@link MessageStream#uploadFilesToServer}).
- * This object is returned in the callback of the method {@link MessageStream#uploadFilesToServer}.
+ * Abstract file that was uploaded to the server ({@link MessageStream#uploadFileToServer}).
+ * This object is returned in the callback of the method {@link MessageStream#uploadFileToServer}.
  */
 public interface UploadedFile {
     /**

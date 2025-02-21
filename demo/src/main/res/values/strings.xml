@@ -1,118 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Webim демо-чат</string>
-    <string name="first_screen_text1">Добро пожаловать в демо-приложение\nWebim Mobile SDK!</string>
-    <string name="first_screen_text2">Для того, чтобы начать чат, нажмите на кнопку ниже.</string>
-    <string name="first_screen_text3">Принять чат со стороны оператора вы можете на странице:</string>
+    <string name="app_name">Webim demo chat</string>
+    <string name="reply_thumbnail" translatable="false">reply thumbnail</string>
+    <string name="first_screen_text1">Welcome to the Demo App for\nWebim Mobile SDK!</string>
+    <string name="first_screen_text2">Tap the button below to start chatting.</string>
+    <string name="first_screen_text3">Sign in as an agent to answer this chat at:</string>
     <string name="first_screen_text4">https://demo.webim.ru</string>
-    <string name="first_screen_text5">Логин: o@webim.ru</string>
-    <string name="first_screen_text6">Пароль: password</string>
-    <string name="first_screen_text7">Исходный код данного приложения вы можете найти по адресу:</string>
+    <string name="first_screen_text5">Login: o@webim.ru</string>
+    <string name="first_screen_text6">Password: password</string>
+    <string name="first_screen_text7">Source code of this app can be found at:</string>
     <string name="first_screen_text8">https://github.com/webim/webim-android-sdk-demo</string>
     <string name="image_logo_content_description">Logo</string>
-    <string name="button_text_start_chat">Начать чат</string>
-    <string name="button_text_settings">Настройки</string>
-    <string name="message">Сообщение…</string>
-    <string name="action_close_chat">Закрыть чат</string>
-    <string name="cancel">Отмена</string>
-    <string name="yes">Да</string>
-    <string name="alert_close_chat">Завершить чат?</string>
-    <string name="choose_department">Выберите отдел</string>
-    <string name="empty_chat_text">Введите сообщение, чтобы начать чат с оператором</string>
-    <string name="content_desc_send_message">send message</string>
-    <string name="rate_operator_button">Отправить</string>
-    <string name="rate_operator_title">Оценить оператора</string>
-    <string name="rate_operator_rating_sent">Оценка была отправлена</string>
-    <string name="rate_operator_rating_empty">Оценка не выставлена</string>
-    <string name="file_chooser_title">Выберите файл для загрузки</string>
-    <string name="file_chooser_not_found">Для загрузки файла, пожалуйста, установите файловый менеджер</string>
-    <string name="file_selection_failed">Не удалось выбрать файл</string>
-    <string name="file_upload_failed_size">Не удалось отправить файл: превышен максимальный размер файла</string>
-    <string name="file_upload_failed_type">Не удалось отправить файл: тип файла не разрешен сервером</string>
-    <string name="file_upload_connection_timeout">Превышен таймаут отправки файла</string>
-    <string name="file_upload_failed_name">Не удалось отправить файл: ошибка в имени файла</string>
-    <string name="file_upload_failed_unknown">Не удалось отправить файл: неизвестная ошибка</string>
-    <string name="file_upload_failed_unauthorized">Не удалось отправить файл: посетитель не авторизован</string>
-    <string name="file_upload_failed_empty">Не удалось отправить файл: пустой файл</string>
-    <string name="file_upload_message_text">Отправка файла…</string>
-    <string name="file_send">Отправил(а) файл:\n</string>
-    <string name="error_user_banned_header">Вы забанены оператором</string>
-    <string name="error_user_banned_desc">Вы не можете использовать чат, так как были забанены оператором</string>
-    <string name="error_account_blocked_header">Webim-аккаунт заблокирован</string>
+    <string name="button_text_start_chat">Start chat</string>
+    <string name="button_text_settings">Settings</string>
+    <string name="message">Message…</string>
+    <string name="action_close_chat">Close chat</string>
+    <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="alert_close_chat">Close chat?</string>
+    <string name="choose_department">Choose department</string>
+    <string name="empty_chat_text">Enter the message to start chatting with the agent</string>
+    <string name="content_desc_send_message">Send message</string>
+    <string name="rate_operator_button">Send</string>
+    <string name="rate_operator_title">Rate agent</string>
+    <string name="rate_operator_rating_sent">Rating has been sent</string>
+    <string name="rate_operator_rating_empty">No rating was given</string>
+    <string name="file_chooser_title">Select file to upload</string>
+    <string name="file_chooser_not_found">To download the file, please install the file manager</string>
+    <string name="file_selection_failed">Could not select file</string>
+    <string name="file_upload_failed_size">Failed to upload file: max file size exceeded</string>
+    <string name="file_upload_failed_type">File upload failed: file type not allowed by server</string>
+    <string name="file_upload_failed_unknown">Unable to load file: unknown error</string>
+    <string name="file_upload_failed_unauthorized">Failed to upload file: visitor is not logged in</string>
+    <string name="file_upload_failed_empty">Failed to upload file: empty file</string>
+    <string name="file_upload_message_text">Sending file…</string>
+    <string name="file_send">Sent a file:\n</string>
+    <string name="error_user_banned_header">You are banned by the agent</string>
+    <string name="error_user_banned_desc">You can not use chat, because they were banned by the agent</string>
+    <string name="error_account_blocked_header">Webim account blocked</string>
     <string name="error_account_blocked_desc">
-        Вы не можете использовать чат, так как заблокирован webim-аккаунт организации, в которую вы пытаетесь обратиться. Попробуйте обратиться позже.
+        You cannot use chat because the webim account of the organization you are trying to contact is blocked. Please try again later.
     </string>
-    <string name="error_unknown_header">Неизвестная ошибка</string>
+    <string name="error_unknown_header">Unknown error</string>
     <string name="error_unknown_desc">
-        Вы не можете использовать чат, так как возникла неизвестная ошибка.
-        Наши разработчики уже оповещены об этой проблеме и исправят ее в ближайшее время. Детали: %s
+        You cannot use chat because an unknown error occurred.
+        Our developers are already notified about this problem and will fix it soon. Details %s
     </string>
-    <string name="push_contact_information">Оператор запросил контактные данные.</string>
-    <string name="push_operator_accepted">Оператор %1$s присоединился к диалогу.</string>
-    <string name="push_operator_file">%1$s отправил(а) файл %2$s</string>
-    <string name="push_operator_message">%1$s:\n%2$s</string>
-    <string name="push_rate_operator">Оценить оператора</string>
-    <string name="prefs_notifications_summary">Включить FCM пуш-уведомления для новых сообщений от оператора</string>
-    <string name="prefs_notifications_title">Уведомления</string>
-    <string name="prefs_account_title">Аккаунт</string>
-    <string name="prefs_account_summary">Имя Webim аккаунта или полный адрес сервера (например, \"demo\" или \"https://demo.webim.ru\")</string>
-    <string name="prefs_location_summary">Размещение, в которое поступит обращение (например, \"mobile\")</string>
-    <string name="prefs_location_title">Размещение</string>
-    <string name="prefs_privacy">Политика конфиденциальности</string>
-    <string name="prefs_version">Версия приложения: %1$s\nВерсия SDK: %2$s</string>
+    <string name="validation_error">Error</string>
+    <string name="push_contact_information">The agent has requested contact details.</string>
+    <string name="push_operator_accepted">The agent %1$s has joined the dialogue.</string>
+    <string name="push_operator_file">%1$s sent a file %2$s</string>
+    <string name="push_operator_message">%1$s: %2$s</string>
+    <string name="push_rate_operator">Rate operator</string>
+    <string name="prefs_notifications_summary">Enable FCM push notifications for new messages from the agent</string>
+    <string name="prefs_notifications_title">Notifications</string>
+    <string name="prefs_file_logger_title">For testers</string>
+    <string name="prefs_file_logger_summary">Write logs in file</string>
+    <string name="prefs_account_title">Account name</string>
+    <string name="prefs_account_summary">Webim account name or full server address (for example, \"demo\" или \"https://demo.webim.ru\")</string>
+    <string name="prefs_location_summary">The location that will receive the appeal (for example, \"mobile\")</string>
+    <string name="prefs_location_title">Location</string>
+    <string name="prefs_privacy">Privacy</string>
+    <string name="prefs_version">App version: %1$s\nSDK version: %2$s</string>
 
-    <string name="typing">пишет…</string>
+    <string name="typing">typing…</string>
 
-    <string name="options">Опции</string>
-    <string name="save_image">Сохранить изображение?</string>
-    <string name="saving_file">Загрузка файла %1$s</string>
-    <string name="sending_file">"Отправка файла: "</string>
-    <string name="file_transfer_by_operator">"Передача файла "</string>
+    <string name="options">Options</string>
+    <string name="save_image">Save image?</string>
+    <string name="sending_file">"Sending file: "</string>
     <string name="def_image_name">image_%1$d.jpg</string>
-    <string name="saved_file">Файл %1$s сохранён</string>
-    <string name="saving_failed">Не удалось отправить файл</string>
+    <string name="saved_file">File %1$s saved</string>
+    <string name="saving_failed">Failed to upload file</string>
 
-    <string name="send_file">Отправить файл</string>
-    <string name="rate_operator">Оценить оператора</string>
-    <string name="close_chat">Завершить чат</string>
+    <string name="rate_operator">Rate agent</string>
+    <string name="close_chat">Close chat</string>
 
-    <string name="no_operator">без оператора</string>
-    <string name="operator_typing">пишет</string>
+    <string name="no_operator">without agent</string>
+    <string name="operator_typing">typing</string>
     <string name="operator_name">%1$s</string>
-    <string name="reply">Ответить</string>
-    <string name="copy">Копировать</string>
-    <string name="edit">Изменить</string>
-    <string name="delete">Удалить</string>
-    <string name="failed_send_empty_message">Нельзя отправить пустое сообщение</string>
-    <string name="wait_sync_toast">Ожидание синхронизации с сервером</string>
-    <string name="operation_denied_toast">Операция запрещена</string>
 
-    <string name="copied_message">Текст сообщения скопирован</string>
-    <string name="copy_failed">Не удалось скопировать сообщение</string>
-    <string name="quote_is_pending">Цитата загружается</string>
-    <string name="quote_is_not_found">Цитата недоступна</string>
-    <string name="message_edited">изменено</string>
-    <string name="message_deleted_toast">Сообщение было удалено</string>
+    <string name="copied_message">Message text copied</string>
+    <string name="copy_failed">Could not copy message</string>
+    <string name="quote_is_pending">Quote is loading</string>
+    <string name="quote_is_not_found">Quote unavailable</string>
+    <string name="message_edited">edited</string>
+    <string name="message_deleted_toast">Message was deleted</string>
 
     <string name="empty_reply_text"> </string>
-    <string name="reply_message_with_image">"Изображение "</string>
-    <string name="default_text">Пример текста</string>
+    <string name="reply_message_with_image">Image </string>
+    <string name="default_text">Text example</string>
     <string name="default_time">10:12</string>
-    <string name="default_date">Ноябрь 12</string>
     <string name="channel_id">com.webimapp.android.demo.client.fcm</string>
     <string name="channel_name">Webim notification</string>
-    <string name="visitor_sender_name">Вы</string>
-    <string name="editing_title">Редактирование</string>
+    <string name="copy">Copy</string>
+    <string name="delete">Delete</string>
+    <string name="download">Download file</string>
+    <string name="edit">Edit</string>
+    <string name="reply">Reply</string>
+    <string name="failed_send_empty_message">Unable to send empty message</string>
+    <string name="wait_sync_toast">Waiting for synchronization with server</string>
+    <string name="operation_denied_toast">Operation denied</string>
 
-    <string name="survey_finish_message">Спасибо за участие в опросе!</string>
-    <string name="survey_rate_title">Оценить оператора</string>
-    <string name="survey_send_answer">Отправить</string>
-    <string name="survey_edit_text_hint">Введите текст комментария</string>
-    <string name="reply_thumbnail" translatable="false">Цитируемая картинка</string>
+    <string name="default_date">November 12</string>
+    <string name="send_file">Send file</string>
+    <string name="file_upload_failed_name">Failed to upload file: error in file name</string>
+    <string name="visitor_sender_name">You</string>
+    <string name="file_transfer_by_operator">"Transferring the file "</string>
+    <string name="editing_title">Editing</string>
+
+    <string name="survey_finish_message">Thanks for taking part in survey!</string>
+    <string name="survey_rate_title">Rate operator</string>
+    <string name="survey_send_answer">Send</string>
+    <string name="survey_edit_text_hint">Type comment text</string>
     <string name="dialog_ok">ok</string>
     <string name="dialog_cancel">cancel</string>
 
-    <string name="settings_account_field_hint">Введите полный URL сервера или название аккаунта,
-        размещённого на сервере *.webim.ru
-        \nНапример, для сервера demo.webim.ru нужно ввести demo</string>
+    <string name="settings_account_field_hint">Enter the full server URL or account name,
+        hosted on the server *.webim.ru
+        \nFor example, for the server demo.webim.ru you need to type \"demo\"</string>
+    <string name="file_upload_connection_timeout">File upload timeout exceeded</string>
+
+    <string name="cannot_open_file">Cannot find an app for opening the file</string>
+    <string name="prefs_testers_title" translatable="false">For testers</string>
+    <string name="prefs_use_chat_view" translatable="false">Использовать ChatView</string>
 </resources>

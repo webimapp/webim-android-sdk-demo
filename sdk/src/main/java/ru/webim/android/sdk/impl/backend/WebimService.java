@@ -1,18 +1,9 @@
 package ru.webim.android.sdk.impl.backend;
 
-import retrofit2.http.Path;
-import ru.webim.android.sdk.impl.items.responses.DefaultResponse;
-import ru.webim.android.sdk.impl.items.responses.DeltaResponse;
-import ru.webim.android.sdk.impl.items.responses.HistoryBeforeResponse;
-import ru.webim.android.sdk.impl.items.responses.HistorySinceResponse;
-import ru.webim.android.sdk.impl.items.responses.LocationSettingsResponse;
-import ru.webim.android.sdk.impl.items.responses.LocationStatusResponse;
-import ru.webim.android.sdk.impl.items.responses.SearchResponse;
-import ru.webim.android.sdk.impl.items.responses.UploadResponse;
-
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -20,7 +11,19 @@ import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Url;
+import ru.webim.android.sdk.impl.items.requests.AutocompleteRequest;
+import ru.webim.android.sdk.impl.items.responses.AutocompleteResponse;
+import ru.webim.android.sdk.impl.items.responses.ServerSettingsResponse;
+import ru.webim.android.sdk.impl.items.responses.DefaultResponse;
+import ru.webim.android.sdk.impl.items.responses.DeltaResponse;
+import ru.webim.android.sdk.impl.items.responses.HistoryBeforeResponse;
+import ru.webim.android.sdk.impl.items.responses.HistorySinceResponse;
+import ru.webim.android.sdk.impl.items.responses.LocationStatusResponse;
+import ru.webim.android.sdk.impl.items.responses.SearchResponse;
+import ru.webim.android.sdk.impl.items.responses.UploadResponse;
 
 public interface WebimService {
 
@@ -74,8 +77,11 @@ public interface WebimService {
     String PARAMETER_VISITOR_FIELDS = "visitor";
     String PARAMETER_VISITOR_NOTE = "visitor_note";
     String PARAMETER_VISITOR_TYPING = "typing";
+    String PARAMETER_GEO_LATITUDE = "latitude";
+    String PARAMETER_GEO_LONGITUDE = "longitude";
     String URL_SUFFIX_ACTION = "l/v/m/action";
     String URL_SUFFIX_DELTA = "l/v/m/delta";
+    String URL_SUFFIX_INIT = "l/v/m/init";
     String URL_SUFFIX_FILE_DELETE = "l/v/file-delete";
     String URL_SUFFIX_FILE_UPLOAD = "l/v/m/upload";
     String URL_SUFFIX_HISTORY = "l/v/m/history";
@@ -108,7 +114,7 @@ public interface WebimService {
             @Query(PARAMETER_TIMESTAMP) long timestamp
     );
 
-    @GET(URL_SUFFIX_DELTA)
+    @GET(URL_SUFFIX_INIT)
     Call<DeltaResponse> getLogin(
             @Header(PARAMETER_SDK_VERSION) String sdkVersion,
             @Query(PARAMETER_EVENT) String event,
@@ -335,7 +341,7 @@ public interface WebimService {
     );
 
     @GET(URL_SUFFIX_GET_CONFIG + "{locationName}")
-    Call<LocationSettingsResponse> getAccountConfig(
+    Call<ServerSettingsResponse> getAccountConfig(
         @Path("locationName") String location
     );
 
@@ -345,5 +351,21 @@ public interface WebimService {
         @Field(PARAMETER_ACTION) String action,
         @Field(PARAMETER_PAGE_ID) String pageId,
         @Field(PARAMETER_AUTHORIZATION_TOKEN) String authToken
+    );
+
+    @POST
+    Call<AutocompleteResponse> autocomplete(
+        @Url String autocompleteUrl,
+        @Body AutocompleteRequest body
+    );
+
+    @FormUrlEncoded
+    @POST(URL_SUFFIX_ACTION)
+    Call<DefaultResponse> sendGeolocation(
+        @Field(PARAMETER_ACTION) String action,
+        @Field(PARAMETER_PAGE_ID) String pageId,
+        @Field(PARAMETER_AUTHORIZATION_TOKEN) String authToken,
+        @Field(PARAMETER_GEO_LATITUDE) float latitude,
+        @Field(PARAMETER_GEO_LONGITUDE) float longitude
     );
 }

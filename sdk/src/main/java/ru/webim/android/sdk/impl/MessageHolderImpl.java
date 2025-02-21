@@ -1,12 +1,9 @@
 package ru.webim.android.sdk.impl;
 
+import static java.util.Collections.unmodifiableList;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import ru.webim.android.sdk.Message;
-import ru.webim.android.sdk.MessageListener;
-import ru.webim.android.sdk.MessageTracker;
-import ru.webim.android.sdk.impl.items.ChatItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,7 +15,13 @@ import java.util.ListIterator;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.Collections.unmodifiableList;
+import ru.webim.android.sdk.Message;
+import ru.webim.android.sdk.MessageListener;
+import ru.webim.android.sdk.MessageTracker;
+import ru.webim.android.sdk.Webim;
+import ru.webim.android.sdk.WebimLogEntity;
+import ru.webim.android.sdk.impl.backend.WebimInternalLog;
+import ru.webim.android.sdk.impl.items.ChatItem;
 
 public class MessageHolderImpl implements MessageHolder {
     private final AccessChecker accessChecker;
@@ -28,7 +31,7 @@ public class MessageHolderImpl implements MessageHolder {
     private final List<MessageSending> sendingMessages = new ArrayList<>();
     private boolean isReachedEndOfLocalHistory = false;
     private boolean isReachedEndOfRemoteHistory;
-    private boolean isFirstUpdateReceived;
+    private boolean firstChatReceived;
     private int previousChatLastMessageIndex = 0;
     @Nullable
     private MessageTrackerImpl messageTracker;
@@ -71,6 +74,7 @@ public class MessageHolderImpl implements MessageHolder {
 
                 @Override
                 public void onHistoryDeleted(String serverSideId) {
+                    onMessageDeleted(serverSideId);
                 }
 
                 @Override
@@ -225,9 +229,7 @@ public class MessageHolderImpl implements MessageHolder {
     @Override
     public void onChatReceive(@Nullable ChatItem oldChat,
                               @Nullable ChatItem newChat,
-                              List<? extends MessageImpl> newMessages,
-                              boolean isFullUpdate) {
-        isFirstUpdateReceived = true;
+                              List<? extends MessageImpl> newMessages) {
         if (oldChat == null && (newChat == null || newMessages.isEmpty())) {
             // if both chats're null or old chat is null and we got new chat with empty messages
             if (messageTracker != null && messageTracker.cachedCallback != null) {
@@ -238,11 +240,12 @@ public class MessageHolderImpl implements MessageHolder {
             if (newChat == null) {
                 historifyCurrentChat();
             }
-            receiveNewMessages(newMessages, isFullUpdate);
+            receiveNewMessages(newMessages);
         } else if (oldChat != null && newChat != null) {
             // both chats're equals and not null
             mergeCurrentChatWith(newMessages);
         }
+        firstChatReceived = true;
     }
 
     private void historifyCurrentChat() {
@@ -309,10 +312,10 @@ public class MessageHolderImpl implements MessageHolder {
         return currentMessages.size() > nextMessageIndex ? currentMessages.get(nextMessageIndex) : null;
     }
 
-    private void receiveNewMessages(@NonNull List<? extends MessageImpl> newMessages, boolean isFullUpdate) {
+    private void receiveNewMessages(@NonNull List<? extends MessageImpl> newMessages) {
         if (!newMessages.isEmpty()) {
             if (messageTracker != null) {
-                messageTracker.onNewMessages(newMessages, isFullUpdate);
+                messageTracker.onNewMessages(newMessages);
             } else {
                 currentMessages.addAll(newMessages);
             }
@@ -508,23 +511,20 @@ public class MessageHolderImpl implements MessageHolder {
         }
 
         @Override
-        public void getNextMessages(final int limitOfMessages,
-                                    @NonNull final GetMessagesCallback callback) {
+        public void getNextMessages(final int limitOfMessages, @NonNull final GetMessagesCallback callback) {
             checkAccess();
 
             if (isDestroyed) {
                 throw new IllegalStateException("WebimMessageTracker is destroyed");
             }
             if (isMessagesLoading) {
-                throw new IllegalStateException("Messages is loading now; " +
-                        "can't load messages in parallel");
+                throw new IllegalStateException("Messages is loading now; can't load messages in parallel");
             }
             if (limitOfMessages <= 0) {
-                throw new IllegalArgumentException("limit must be greater than zero. " +
-                        "Given " + limitOfMessages);
+                throw new IllegalArgumentException("limit must be greater than zero. Given " + limitOfMessages);
             }
             isMessagesLoading = true;
-            if (isFirstUpdateReceived) {
+            if (firstChatReceived) {
                 uncheckedGetNextMessages(limitOfMessages, callback);
             } else {
                 cachedCallback = callback;
@@ -563,7 +563,7 @@ public class MessageHolderImpl implements MessageHolder {
             isAllMessageSourcesEnded = false;
             headMessage = null;
 
-            if (isFirstUpdateReceived) {
+            if (firstChatReceived) {
                 getLatestMessages(limitOfMessages, new GetMessagesCallbackWrapper(limitOfMessages, callback));
             } else {
                 cachedCallback = callback;
@@ -723,9 +723,9 @@ public class MessageHolderImpl implements MessageHolder {
             historyProvider.requestHistoryBefore(beforeMicros, historyBeforeCallback);
         }
 
-        void onNewMessages(final List<? extends MessageImpl> newMessages, boolean isFullUpdate) {
+        void onNewMessages(final List<? extends MessageImpl> newMessages) {
             if (cachedCallback == null) {
-                if (headMessage == null && !isFullUpdate) {
+                if (headMessage == null && firstChatReceived) {
                     headMessage = newMessages.get(0);
                 }
                 for (MessageImpl message : newMessages) {
@@ -772,36 +772,32 @@ public class MessageHolderImpl implements MessageHolder {
             MessageSending messageToSend = findMessageSendingMirror(newMessage);
             if (messageToSend != null) {
                 sendingMessages.remove(messageToSend);
-
-                int messagesSize = currentMessages.size();
-                boolean isSendingMessageLatest = currentMessages.isEmpty()
-                    || currentMessages.get(messagesSize - 1).compareTo(messageToSend) < 0;
-
-                if (isSendingMessageLatest) {
-                    currentMessages.add(newMessage);
-                    onCurrentMessageChanged(messageToSend, newMessage);
-                } else {
-                    messageListener.messageRemoved(messageToSend);
-                    int positionToAdd = findAddingPositionForMirrorMessage(newMessage);
-                    MessageImpl beforeMessage = positionToAdd < currentMessages.size()
-                        ? currentMessages.get(positionToAdd)
-                        : null;
-                    currentMessages.add(positionToAdd, newMessage);
-                    onCurrentMessageAdded(beforeMessage, newMessage);
-                }
+                currentMessages.add(newMessage);
+                onCurrentMessageChanged(messageToSend, newMessage);
             } else {
                 if (previousChatLastMessageIndex > currentIndex) {
                     previousChatLastMessageIndex++;
                 }
                 if (addToEnd) {
                     currentMessages.add(newMessage);
-                    onCurrentMessageAdded(null, newMessage);
+                    onCurrentMessageAdded(findEarliestSendingMessage(), newMessage);
                 } else {
                     MessageImpl beforeMessage = currentMessages.get(currentIndex);
                     currentMessages.add(currentIndex, newMessage);
                     onCurrentMessageAdded(beforeMessage, newMessage);
                 }
             }
+        }
+
+        @Nullable
+        private MessageSending findEarliestSendingMessage() {
+            MessageSending earliest = null;
+            for (MessageSending sendingMessage : sendingMessages) {
+                if (sendingMessage.compareTo(earliest) > 0) {
+                    earliest = sendingMessage;
+                }
+            }
+            return earliest;
         }
 
         @Nullable
@@ -814,25 +810,26 @@ public class MessageHolderImpl implements MessageHolder {
             return null;
         }
 
-        private int findAddingPositionForMirrorMessage(MessageImpl message) {
-            int index;
-            for (index = previousChatLastMessageIndex; index < currentMessages.size(); index++) {
-                Message currentMessage = currentMessages.get(index);
-                if (currentMessage.getTime() > message.getTime()) {
-                    return index;
-                }
-            }
-            return index;
-        }
-
         void onCurrentMessageAdded(MessageImpl before, MessageImpl msg) {
             if (headMessage != null && msg.compareTo(headMessage) >= 0) {
+                String beforeText = "null";
+                if (before != null) {
+                    beforeText = before.getText();
+                }
+                WebimInternalLog.getInstance().log("Added \"" + msg.getText() + "\" after: \"" + beforeText + "\"",
+                        Webim.SessionBuilder.WebimLogVerbosityLevel.VERBOSE,
+                        WebimLogEntity.MESSAGES
+                );
                 messageListener.messageAdded(before, msg);
             }
         }
 
         void onCurrentMessageChanged(MessageImpl from, MessageImpl to) {
             if (headMessage != null && to.compareTo(headMessage) >= 0) {
+                WebimInternalLog.getInstance().log("Changed \"" + from.getText() + "\" to: \"" + to.getText() + "\"",
+                        Webim.SessionBuilder.WebimLogVerbosityLevel.VERBOSE,
+                        WebimLogEntity.MESSAGES
+                );
                 messageListener.messageChanged(from, to);
             }
         }
@@ -883,7 +880,7 @@ public class MessageHolderImpl implements MessageHolder {
                 List<? extends Message> result;
                 if (!messages.isEmpty()) {
                     List<MessageImpl> filtered = new ArrayList<>(messages.size());
-                    merge((List<MessageImpl>) messages, filtered);
+                    merge(new ArrayList<>((List<MessageImpl>) messages), filtered);
 
                     if (filtered.isEmpty()) {
                         getMessages((MessageImpl) messages.get(0), limit, this);

@@ -4,8 +4,8 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimaryDark">@color/webim_primary_dark</item>
+        <item name="colorAccent">@color/webim_color_accent</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -13,7 +13,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.Launcher">
+    <style name="AppTheme.NoActionBar.Launcher">
         <item name="android:windowBackground">@drawable/splash_screen</item>
     </style>
 
@@ -32,12 +32,12 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="AppTheme.ButtonGreen" parent="Widget.AppCompat.Button.Colored">
-        <item name="colorButtonNormal">@color/colorAccent</item>
+        <item name="colorButtonNormal">@color/webim_color_accent</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
     <style name="AppTheme.ButtonPurple" parent="Widget.AppCompat.Button.Colored">
-        <item name="colorButtonNormal">@color/colorPrimaryDark</item>
+        <item name="colorButtonNormal">@color/webim_primary_dark</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
@@ -61,4 +61,7 @@
         <item name="colorControlHighlight">@color/blue</item>
     </style>
 
+    <style name="WebimLoaderBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/webim_loader</item>
+    </style>
 </resources>

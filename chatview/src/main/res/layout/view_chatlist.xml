@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:parentTag="android.widget.FrameLayout"
+    android:background="?attr/chv_secondary_color"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <ru.webim.chatview.ui.ChatPrompt
+        android:id="@+id/chv_notification_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chv_chat_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/chv_empty_chat"
+        android:background="?attr/chv_system_bubble"
+        android:textColor="?attr/chv_system_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="?attr/chv_message_text_size"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:text="@string/chat_is_empty"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/chv_scroll_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/chat_scroll_button_margin"
+        android:clickable="true"
+        android:contentDescription="@string/content_desc_scroll_chat"
+        android:focusable="true"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:visibility="gone"
+        app:backgroundTint="?attr/chv_bar_background"
+        app:fabSize="mini"
+        app:srcCompat="@drawable/arrow_drop_down"
+        app:tint="?attr/chv_text_medium" />
+
+    <ProgressBar
+        android:id="@+id/chat_progress_bar"
+        style="?android:attr/progressBarStyle"
+        android:indeterminateTint="?attr/chv_accent_color"
+        android:indeterminateTintMode="src_atop"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</merge>

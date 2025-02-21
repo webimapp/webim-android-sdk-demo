@@ -12,7 +12,7 @@
     android:paddingRight="20dp"
     android:paddingBottom="16dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="ru.webim.android.demo.client.MainActivity"
+    tools:context="ru.webim.android.demo.MainActivity"
     tools:showIn="@layout/fragment_main">
 
     <ImageView
@@ -23,7 +23,7 @@
         android:layout_marginBottom="10dp"
         android:contentDescription="@string/image_logo_content_description"
         android:scaleType="fitStart"
-        android:src="@drawable/logo_webim" />
+        android:src="@drawable/logo_app" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -161,7 +161,6 @@
                 android:layout_width="@dimen/badge_background_size"
                 android:layout_height="@dimen/badge_background_size"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:background="@drawable/background_badge"
                 android:padding="@dimen/badge_padding"
                 android:visibility="gone" />
@@ -171,7 +170,6 @@
                 android:layout_width="@dimen/badge_background_size"
                 android:layout_height="@dimen/badge_background_size"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:background="@drawable/background_badge"
                 android:gravity="center"
                 android:textColor="@color/colorTextActivityMain"

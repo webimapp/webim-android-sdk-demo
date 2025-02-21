@@ -13,7 +13,7 @@
         android:id="@+id/ratingBar"
         android:layout_gravity="center_horizontal"
         android:numStars="5"
-        android:progressBackgroundTint="@color/inactiveRatingColor"
+        android:progressBackgroundTint="@color/rating_inactive"
         android:stepSize="1" />
 
     <Button

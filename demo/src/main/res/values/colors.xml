@@ -6,7 +6,7 @@
 
     <color name="colorBackground">#EEEFF4</color>
     <color name="colorBackgroundActivityMain">#272A51</color>
-    <color name="colorBackgroundDialog">#333333</color>
+    <color name="message_menu_background">#333333</color>
     <color name="colorBackgroundChatMenu">#99000000</color>
     <color name="colorBackgroundChatStart">#EEF0F4</color>
     <color name="colorBackgroundChatEnd">#EAECF2</color>
@@ -17,30 +17,6 @@
 
     <color name="infoMsgBubble">#145C5F8A</color>
 
-    <color name="receivedMsgBubble">#FFFFFF</color>
-    <color name="receivedMsgText">#272A51</color>
-    <color name="receivedMsgTimeText">#805C5F8A</color>
-    <color name="receivedMsgEditedText">#805C5F8A</color>
-    <color name="receivedMsgSelect">#E4F9FF</color>
-
-    <color name="sendingMsgBubble">#15ACD2</color>
-    <color name="sendingMsgText">#FFFFFF</color>
-    <color name="sendingMsgFileProperty">#99FFFFFF</color>
-    <color name="sendingMsgTimeText">#805C5F8A</color>
-    <color name="sendingMsgEditedText">#805C5F8A</color>
-    <color name="sendingMsgSelect">#008AAD</color>
-
-    <color name="messageBorder">#E0E2EA</color>
-    <color name="itemsBorder">#5C5F8A</color>
-
-    <color name="systemMsg">#5C5F8A</color>
-    <color name="systemMsgTime">#805C5f8A</color>
-    <color name="colorHintText">#8A393F6B</color>
-
-    <color name="circleForAnimation">#FFFFFF</color>
-
-    <color name="inactiveRatingColor">#D3D3D3</color>
-
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="orange">#FFA500</color>
@@ -50,9 +26,4 @@
     <color name="red">#D24215</color>
 
     <color name="transparent">#00000000 </color>
-
-    <color name="colorPendingKeyboardButton">#15ACD2</color>
-    <color name="colorCompletedKeyboardButton">#FFFFFF</color>
-    <color name="colorCanceledKeyboardButton">#BEBFD0</color>
-    <color name="colorKeyboardBackground">#E0E3EB</color>
 </resources>

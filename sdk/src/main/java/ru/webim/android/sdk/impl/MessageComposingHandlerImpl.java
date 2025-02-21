@@ -34,13 +34,10 @@ public class MessageComposingHandlerImpl implements MessageComposingHandler {
         if (!isUpdateDraftScheduled) {
             sendDraft(draftMessage);
             isUpdateDraftScheduled = true;
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    isUpdateDraftScheduled = false;
-                    if (!InternalUtils.equals(latestDraft, draftMessage)) {
-                        sendDraft(latestDraft);
-                    }
+            handler.postDelayed(() -> {
+                isUpdateDraftScheduled = false;
+                if (!InternalUtils.equals(latestDraft, draftMessage)) {
+                    sendDraft(latestDraft);
                 }
             }, SEND_DRAFT_INTERVAL);
         }

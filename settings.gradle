@@ -1,4 +1,0 @@
-include ':sdk'
-include ':demo'
-
-project(":sdk").name = "webimclientsdkandroid"

@@ -3,6 +3,7 @@ package ru.webim.android.sdk.impl.backend;
 import androidx.annotation.NonNull;
 
 import ru.webim.android.sdk.FAQ;
+import ru.webim.android.sdk.impl.backend.callbacks.DefaultCallback;
 import ru.webim.android.sdk.impl.items.FAQCategoryItem;
 import ru.webim.android.sdk.impl.items.FAQItemItem;
 import ru.webim.android.sdk.impl.items.FAQSearchItemItem;

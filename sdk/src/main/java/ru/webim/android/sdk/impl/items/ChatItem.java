@@ -156,8 +156,7 @@ public final class ChatItem {
     public boolean equals(@Nullable Object object) {
         if (object instanceof ChatItem && this.getId() != null && this.getClientSideId() != null) {
             ChatItem chatItem = (ChatItem) object;
-            return this.getId().equals(chatItem.getId())
-                    && this.clientSideId.equals(chatItem.clientSideId);
+            return this.getId().equals(chatItem.getId()) && this.clientSideId.equals(chatItem.clientSideId);
         } else {
             return false;
         }

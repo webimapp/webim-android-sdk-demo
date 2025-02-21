@@ -87,6 +87,7 @@
 
         <LinearLayout
             android:id="@+id/layoutNotification"
+            android:background="?android:attr/selectableItemBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -110,9 +111,11 @@
 
             <CheckBox
                 android:id="@+id/checkBoxNotification"
+                android:background="@android:color/transparent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:button="@null"
+                android:clickable="false"
                 android:drawableEnd="?android:attr/listChoiceIndicatorMultiple"
                 android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
                 android:text="@string/prefs_notifications_summary"
@@ -128,17 +131,62 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/layoutNotification"/>
 
+        <LinearLayout
+            android:id="@+id/layoutFileLogger"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingTop="20dp"
+            android:paddingRight="20dp"
+            android:paddingBottom="20dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider3">
+
+            <TextView
+                android:id="@+id/fileLoggerTitle"
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="@string/prefs_file_logger_title"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <CheckBox
+                android:id="@+id/fileLoggerCheck"
+                android:background="?android:attr/selectableItemBackground"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:button="@null"
+                android:drawableEnd="?android:attr/listChoiceIndicatorMultiple"
+                android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
+                android:text="@string/prefs_file_logger_summary"
+                android:textColor="?android:attr/textColorSecondary" />
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layoutFileLogger" />
+
         <TextView
             android:id="@+id/textPrivacy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="10dp"
             android:text="@string/prefs_privacy"
             app:layout_constraintBottom_toTopOf="@+id/textVersion"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/layoutNotification"
+            app:layout_constraintTop_toBottomOf="@+id/view"
             app:layout_constraintVertical_bias="1.0" />
 
         <TextView

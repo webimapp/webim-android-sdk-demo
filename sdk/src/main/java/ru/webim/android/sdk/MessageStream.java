@@ -4,10 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.util.Date;
 import java.util.List;
 
 import ru.webim.android.sdk.impl.MessageReaction;
+import ru.webim.android.sdk.impl.items.LocationSettingsItem;
+import ru.webim.android.sdk.impl.items.SuggestionItem;
 
 /**
  * @see WebimSession#getStream()
@@ -30,7 +33,7 @@ public interface MessageStream {
     ChatState getChatState();
 
     /**
-     * Operator of the current chat
+     * @return Operator of the current chat
      * @throws IllegalStateException if the WebimSession was destroyed
      * @throws RuntimeException if the method was called not from the thread the WebimSession was created in
      */
@@ -146,11 +149,26 @@ public interface MessageStream {
 
     /**
      * Changes {@link ChatState} to {@link ChatState#QUEUE}
+     * @param chatStartedCallback callback that will be fired
+     * @throws IllegalStateException if the WebimSession was destroyed
+     * @throws RuntimeException if the method was called not from the thread {@link WebimSession}
+     * was created in
+     */
+    void startChat(ChatStartedCallback chatStartedCallback);
+
+    /**
+     * Changes {@link ChatState} to {@link ChatState#QUEUE}
      * @throws IllegalStateException if the WebimSession was destroyed
      * @throws RuntimeException if the method was called not from the thread {@link WebimSession}
      * was created in
      */
     void startChat();
+
+    /**
+     * Method returns the current chat id
+     * @return current chat id or null if chat does not exist
+     */
+    @Nullable String getChatId();
 
     /**
      * @param message message that is reacted
@@ -177,11 +195,12 @@ public interface MessageStream {
      * Starts chat and sends first message simultaneously.
      * Changes {@link ChatState} to {@link ChatState#QUEUE}.
      * @param firstQuestion first visitor message to send
+     * @return clientside id of the message or null if chat cannot be started
      * @throws IllegalStateException if the WebimSession was destroyed
      * @throws RuntimeException if the method was called not from the thread {@link WebimSession}
      * was created in
      * */
-    void startChatWithFirstQuestion(@Nullable String firstQuestion);
+    String startChatWithFirstQuestion(@Nullable String firstQuestion);
 
     /**
      * Starts chat with custom fields.
@@ -200,11 +219,12 @@ public interface MessageStream {
      * @see Department
      * @param departmentKey department key
      * @param firstQuestion first visitor message to send
+     * @return clientside id of the message or null if chat cannot be started
      * @throws IllegalStateException if the WebimSession was destroyed
      * @throws RuntimeException if the method was called not from the thread {@link WebimSession}
      * was created in
      */
-    void startChatWithDepartmentKeyFirstQuestion(@Nullable String departmentKey,
+    String startChatWithDepartmentKeyFirstQuestion(@Nullable String departmentKey,
                                                  @Nullable String firstQuestion);
 
     /**
@@ -212,11 +232,12 @@ public interface MessageStream {
      * Changes {@link ChatState} to {@link ChatState#QUEUE}.
      * @param customFields custom fields
      * @param firstQuestion first visitor message to send
+     * @return clientside id of the message or null if chat cannot be started
      * @throws IllegalStateException if the WebimSession was destroyed
      * @throws RuntimeException if the method was called not from the thread {@link WebimSession}
      * was created in
      */
-    void startChatWithCustomFieldsFirstQuestion(@Nullable String customFields,
+    String startChatWithCustomFieldsFirstQuestion(@Nullable String customFields,
                                                 @Nullable String firstQuestion);
 
     /**
@@ -225,11 +246,12 @@ public interface MessageStream {
      * @see Department
      * @param customFields custom fields
      * @param departmentKey department key
+     * @return clientside id of the message or null if chat cannot be started
      * @throws IllegalStateException if the WebimSession was destroyed
      * @throws RuntimeException if the method was called not from the thread {@link WebimSession}
      * was created in
      */
-    void startChatWithCustomFieldsDepartmentKey(@Nullable String customFields,
+    String startChatWithCustomFieldsDepartmentKey(@Nullable String customFields,
                                                 @Nullable String departmentKey);
 
     /**
@@ -239,11 +261,12 @@ public interface MessageStream {
      * @param firstQuestion first visitor message to send
      * @param customFields custom fields
      * @param departmentKey department key
+     * @return clientside id of the message or null if chat cannot be started
      * @throws IllegalStateException if the WebimSession was destroyed
      * @throws RuntimeException if the method was called not from the thread {@link WebimSession}
      * was created in
      */
-    void startChatWithFirstQuestionCustomFieldsDepartmentKey(@Nullable String firstQuestion,
+    String startChatWithFirstQuestionCustomFieldsDepartmentKey(@Nullable String firstQuestion,
                                                              @Nullable String customFields,
                                                              @Nullable String departmentKey);
 
@@ -286,7 +309,7 @@ public interface MessageStream {
      * {@link MessageListener#messageAdded(Message, Message)} with a message
      * {@link Message.SendStatus#SENDING} in the status is also called.
      * @param message text of the message
-     * @return id of the message
+     * @return clientside id of the message
      * @throws IllegalStateException if the WebimSession was destroyed
      * @throws RuntimeException if the method was called not from the thread the WebimSession was
      * created in
@@ -338,7 +361,8 @@ public interface MessageStream {
      * {@link MessageStream#newMessageTracker}),
      * {@link MessageListener#messageAdded(Message, Message)} with a message
      * {@link Message.SendStatus#SENDING} in the status is also called.
-     * @param uploadedFiles files description
+     * @param uploadedFiles files that were uploaded with method {@link
+     * MessageStream#uploadFileToServer(File, String, String, UploadFileToServerCallback)}
      * @param sendFilesCallback shows if a call is completed or failed
      * @return id of the message
      * @throws IllegalStateException if the WebimSession was destroyed
@@ -379,14 +403,14 @@ public interface MessageStream {
      * {@link MessageStream#newMessageTracker}),
      * {@link MessageListener#messageAdded(Message, Message)} with a message
      * @see Message#getKeyboard()
-     * @param requestMessageCurrentChatId currentChatId of the message
+     * @param messageServerSideId server side id of the message
      * @param buttonId the id of the button that the user selected
      * @param sendKeyboardCallback shows if a call is completed or failed
      * @throws IllegalStateException if the WebimSession was destroyed
      * @throws RuntimeException if the method was called not from the thread the WebimSession was
      * created in
      */
-    void sendKeyboardRequest(@NonNull String requestMessageCurrentChatId,
+    void sendKeyboardRequest(@NonNull String messageServerSideId,
                              @NonNull String buttonId,
                              @Nullable SendKeyboardCallback sendKeyboardCallback);
 
@@ -447,6 +471,28 @@ public interface MessageStream {
                         @Nullable SendFileCallback callback);
 
     /**
+     * Sends a file message. A name of a file must contain file extension which is appropriate to
+     * the  specified MIME type. (use {@link android.webkit.MimeTypeMap}).
+     * When calling this method, if there is an active {@link MessageTracker} (see
+     * {@link MessageStream#newMessageTracker}),
+     * {@link MessageListener#messageAdded(Message, Message)} with a message
+     * {@link Message.SendStatus#SENDING} in the status is also called.
+     * @param fd the descriptor of the file to send
+     * @param name the name of the file (must end with a valid extension)
+     * @param mimeType MIME type of the file
+     * @param callback shows if a call on file upload is completed or failed
+     * @return id of the message
+     * @throws IllegalStateException if the WebimSession was destroyed
+     * @throws RuntimeException if the method was called not from the thread the WebimSession was
+     * created in
+     */
+    @NonNull
+    Message.Id sendFile(@NonNull FileDescriptor fd,
+                        @NonNull String name,
+                        @NonNull String mimeType,
+                        @Nullable SendFileCallback callback);
+
+    /**
      * Uploads the file to the server. A name of a file must contain file extension which is appropriate to
      * the  specified MIME type. (use {@link android.webkit.MimeTypeMap}).
      * @param file the file to send
@@ -460,13 +506,13 @@ public interface MessageStream {
      */
     @CustomMethod
     @NonNull
-    Message.Id uploadFilesToServer(@NonNull File file,
-                                   @NonNull String name,
-                                   @NonNull String mimeType,
-                                   @Nullable UploadFileToServerCallback uploadFileToServerCallback);
+    Message.Id uploadFileToServer(@NonNull File file,
+                                  @NonNull String name,
+                                  @NonNull String mimeType,
+                                  @Nullable UploadFileToServerCallback uploadFileToServerCallback);
 
     /**
-     * Deletes files uploaded to the server ({@link MessageStream#uploadFilesToServer}).
+     * Deletes file uploaded to the server ({@link MessageStream#uploadFileToServer}).
      * @param fileGuid guid file to delete
      * @param deleteUploadedFileCallback shows if a call on file delete is completed or failed
      * @throws IllegalStateException if the WebimSession was destroyed
@@ -474,8 +520,8 @@ public interface MessageStream {
      * created in
      */
     @CustomMethod
-    void deleteUploadedFiles(@NonNull String fileGuid,
-                             @Nullable DeleteUploadedFileCallback deleteUploadedFileCallback);
+    void deleteUploadedFile(@NonNull String fileGuid,
+                            @Nullable DeleteUploadedFileCallback deleteUploadedFileCallback);
 
     /**
      * Send sticker to chat.
@@ -492,11 +538,50 @@ public interface MessageStream {
     void sendSticker(int stickerId, @Nullable SendStickerCallback sendStickerCallback);
 
     /**
-     * Receive raw location config from server.
+     * Receive location settings from server.
      * @param location location name
      * @param callback shows if the call to receive location config is completed or not
      * */
-    void getRawLocationConfig(@NonNull String location, @NonNull RawLocationConfigCallback callback);
+    void getLocationConfig(@NonNull String location, @NonNull LocationConfigCallback callback);
+
+    /**
+     * Sends geolocation to server
+     * @param latitude latitude of geo point
+     * @param longitude longitude of geo point
+     * @param callback callback that is called when geolocation is sent
+     * */
+    void sendGeolocation(float latitude, float longitude, @Nullable GeolocationCallback callback);
+
+    /**
+     * @see MessageStream#sendGeolocation(float, float, GeolocationCallback)
+     */
+    interface GeolocationCallback {
+
+        /**
+         * Invoked when geolocation is sent successfully.
+         */
+        void onSuccess();
+
+        /**
+         * Invoked when some error happens
+         */
+        void onFailed(WebimError<GeolocationError> geolocationError);
+
+        /**
+         * @see GeolocationCallback#onFailed(WebimError)
+         */
+        enum GeolocationError {
+            /**
+             * Invalid geolocation
+             */
+            INVALID_GEO,
+
+            /**
+             * Unknown error
+             */
+            UNKNOWN,
+        }
+    }
 
     /**
      * MessageTracker (via {@link MessageTracker#getNextMessages}) allows to request the messages which are above in the history.
@@ -519,7 +604,21 @@ public interface MessageStream {
      * @see VisitSessionState
      * @param visitSessionStateListener {@link VisitSessionStateListener} object
      */
+    @Deprecated
     void setVisitSessionStateListener(@NonNull VisitSessionStateListener visitSessionStateListener);
+
+    /**
+     * Adds {@link VisitSessionStateListener} object.
+     * @see VisitSessionStateListener
+     * @see VisitSessionState
+     * @param visitSessionStateListener {@link VisitSessionStateListener} object
+     */
+    void addVisitSessionStateListener(@NonNull VisitSessionStateListener visitSessionStateListener);
+
+    /**
+     * Removes {@link VisitSessionStateListener} object.
+     */
+    void removeVisitSessionStateListener(@NonNull VisitSessionStateListener visitSessionStateListener);
 
     /**
      * Sets the {@link ChatState} change listener
@@ -527,7 +626,21 @@ public interface MessageStream {
      * @throws IllegalStateException if the WebimSession was destroyed
      * @throws RuntimeException if the method was called not from the thread the WebimSession was created in
      */
+    @Deprecated
     void setChatStateListener(@NonNull ChatStateListener listener);
+
+    /**
+     * Adds the {@link ChatState} change listener
+     * @param listener the {@link ChatState} change listener
+     * @throws IllegalStateException if the WebimSession was destroyed
+     * @throws RuntimeException if the method was called not from the thread the WebimSession was created in
+     */
+    void addChatStateListener(@NonNull ChatStateListener listener);
+
+    /**
+     * Removes the {@link ChatState} change listener
+     */
+    void removeChatStateListener(@NonNull ChatStateListener listener);
 
     /**
      * Sets the current {@link Operator} change listener
@@ -535,7 +648,21 @@ public interface MessageStream {
      * @throws IllegalStateException if the WebimSession was destroyed
      * @throws RuntimeException if the method was called not from the thread the WebimSession was created in
      */
+    @Deprecated
     void setCurrentOperatorChangeListener(@NonNull CurrentOperatorChangeListener listener);
+
+    /**
+     * Adds the current {@link Operator} change listener
+     * @param listener the current {@link Operator} change listener
+     * @throws IllegalStateException if the WebimSession was destroyed
+     * @throws RuntimeException if the method was called not from the thread the WebimSession was created in
+     */
+    void addCurrentOperatorChangeListener(@NonNull CurrentOperatorChangeListener listener);
+
+    /**
+     * Removes the current {@link Operator} change listener
+     */
+    void removeCurrentOperatorChangeListener(@NonNull CurrentOperatorChangeListener listener);
 
     /**
      * Sets the listener of the 'operator typing' status changes
@@ -543,7 +670,21 @@ public interface MessageStream {
      * @throws IllegalStateException if the WebimSession was destroyed
      * @throws RuntimeException if the method was called not from the thread the WebimSession was created in
      */
+    @Deprecated
     void setOperatorTypingListener(@NonNull OperatorTypingListener listener);
+
+    /**
+     * Adds the listener of the 'operator typing' status changes
+     * @param listener the listener of the 'operator typing' status changes
+     * @throws IllegalStateException if the WebimSession was destroyed
+     * @throws RuntimeException if the method was called not from the thread the WebimSession was created in
+     */
+    void addOperatorTypingListener(@NonNull OperatorTypingListener listener);
+
+    /**
+     * Removes the listener of the 'operator typing' status changes
+     */
+    void removeOperatorTypingListener(@NonNull OperatorTypingListener listener);
 
     /**
      * Sets {@link DepartmentListChangeListener} object.
@@ -551,12 +692,25 @@ public interface MessageStream {
      * @see Department
      * @param departmentListChangeListener {@link DepartmentListChangeListener} object
      */
-    void setDepartmentListChangeListener
-    (@NonNull DepartmentListChangeListener departmentListChangeListener);
+    @Deprecated
+    void setDepartmentListChangeListener(@NonNull DepartmentListChangeListener departmentListChangeListener);
+
+    /**
+     * Adds {@link DepartmentListChangeListener} object.
+     * @see DepartmentListChangeListener
+     * @see Department
+     * @param departmentListChangeListener {@link DepartmentListChangeListener} object
+     */
+    void addDepartmentListChangeListener(@NonNull DepartmentListChangeListener departmentListChangeListener);
+
+    /**
+     * Remove {@link DepartmentListChangeListener} object.
+     */
+    void removeDepartmentListChangeListener(@NonNull DepartmentListChangeListener departmentListChangeListener);
 
     /**
      * Sets the listener of the MessageStream LocationSettings changes.
-     * @param locationSettingsChangeListener
+     * @param locationSettingsChangeListener listener for handling result of request for location settings
      */
     void setLocationSettingsChangeListener(LocationSettingsChangeListener locationSettingsChangeListener);
 
@@ -600,6 +754,14 @@ public interface MessageStream {
      */
     @CustomMethod
     void clearChatHistory();
+
+    /**
+     * This method receiving hints
+     * @param text the string which hints are found for
+     * @param callback helps retrieving the suggests
+     */
+    @CustomMethod
+    void autocomplete(String text, AutocompleteCallback callback);
 
     /**
      * Sending chat history on email
@@ -722,6 +884,35 @@ public interface MessageStream {
     }
 
     /**
+     * @see MessageStream#autocomplete(String, AutocompleteCallback)
+     */
+    interface AutocompleteCallback {
+        /**
+         * Invoked when survey answer is sent successfully.
+         */
+        void onSuccess(List<SuggestionItem> suggestions);
+
+        /**
+         * Invoked when an error occurred while sending survey answer.
+         */
+        void onFailure(WebimError<AutocompleteError> webimError);
+
+        /**
+         * @see AutocompleteCallback#onFailure(WebimError)
+         */
+        enum AutocompleteError {
+            /**
+             * When visitor hints api endpoint is not set or invalid in the server account config.
+             */
+            HINTS_API_INVALID,
+            /**
+             * Received error is not supported by current WebimClientLibrary version.
+             */
+            UNKNOWN
+        }
+    }
+
+    /**
      * @see MessageStream#closeSurvey(SurveyCloseCallback)
      */
     interface SurveyCloseCallback {
@@ -764,6 +955,17 @@ public interface MessageStream {
     }
 
     /**
+     * @see MessageStream#startChat(ChatStartedCallback)
+     */
+    interface ChatStartedCallback {
+
+        /**
+         * Invokes when chat is successfully started on server
+         */
+        void chatStarted();
+    }
+
+    /**
      * @see MessageStream#searchMessages(String, SearchMessagesCallback)
      * */
     interface SearchMessagesCallback {
@@ -775,13 +977,13 @@ public interface MessageStream {
     }
 
     /**
-     * @see MessageStream#getRawLocationConfig(String, RawLocationConfigCallback)
+     * @see MessageStream#getLocationConfig(String, LocationConfigCallback)(String, LocationConfigCallback)
      */
-    interface RawLocationConfigCallback {
+    interface LocationConfigCallback {
         /**
          * Invoked when location config received successfully.
          */
-        void onSuccess(String jsonLocationConfig);
+        void onSuccess(LocationSettingsItem locationConfig);
 
         /**
          * Invoked when an error occurred while receiving location config.
@@ -960,7 +1162,7 @@ public interface MessageStream {
             /**
              * Cannot create response
              */
-            CAN_NOT_CREATE_RESPONSE,
+            CANNOT_CREATE_RESPONSE,
             /**
              * Received error is not supported by current WebimClientLibrary version.
              */
@@ -1145,7 +1347,7 @@ public interface MessageStream {
     }
 
     /**
-     * @see MessageStream#uploadFilesToServer
+     * @see MessageStream#uploadFileToServer
      */
     interface UploadFileToServerCallback {
         /**
@@ -1165,7 +1367,7 @@ public interface MessageStream {
     }
 
     /**
-     * @see MessageStream#deleteUploadedFiles
+     * @see MessageStream#deleteUploadedFile
      */
     interface DeleteUploadedFileCallback {
         /**
@@ -1224,7 +1426,10 @@ public interface MessageStream {
              * existing chat.
              */
             OPERATOR_NOT_IN_CHAT,
-
+            /**
+             * Arises when operator was already rated.
+             */
+            OPERATOR_ALREADY_RATED,
             /**
              * Note length is more than 2000 characters.
              */

@@ -2,6 +2,7 @@ package ru.webim.android.sdk.impl;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -9,7 +10,7 @@ import android.os.SystemClock;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.security.crypto.EncryptedSharedPreferences;
-import androidx.security.crypto.MasterKey;
+import androidx.security.crypto.MasterKeys;
 
 import com.google.gson.JsonParser;
 
@@ -39,8 +40,8 @@ import ru.webim.android.sdk.Webim;
 import ru.webim.android.sdk.WebimError;
 import ru.webim.android.sdk.WebimSession;
 import ru.webim.android.sdk.impl.backend.AuthData;
-import ru.webim.android.sdk.impl.backend.DefaultCallback;
-import ru.webim.android.sdk.impl.backend.DeltaCallback;
+import ru.webim.android.sdk.impl.backend.callbacks.DefaultCallback;
+import ru.webim.android.sdk.impl.backend.callbacks.DeltaCallback;
 import ru.webim.android.sdk.impl.backend.DeltaRequestLoop;
 import ru.webim.android.sdk.impl.backend.InternalErrorListener;
 import ru.webim.android.sdk.impl.backend.SessionParamsListener;
@@ -233,42 +234,7 @@ public class WebimSessionImpl implements WebimSession {
         }
 
         if (preferences == null) {
-            String visitorSuffix = ((visitorFields == null) ? "anonymous" : visitorFields.getId());
-            String encryptedPreferenceFilename = SHARED_PREFS_NAME + visitorSuffix + "-enc";
-            try {
-                MasterKey masterKey = new MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
-
-                preferences = EncryptedSharedPreferences.create(
-                    context,
-                    encryptedPreferenceFilename,
-                    masterKey,
-                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-                );
-
-                boolean nonEncryptedPreferenceFilesRemoved = preferences.getBoolean(PREFS_KEY_NON_ENCRYPTED_PREFERENCES_REMOVED, false);
-                if (!nonEncryptedPreferenceFilesRemoved) {
-                    // remove all non-encrypted data
-                    List<File> deprecatedNonEncryptedPreferences = getDeprecatedPreferencesFiles(context);
-                    if (deprecatedNonEncryptedPreferences != null) {
-                        for (File pref : deprecatedNonEncryptedPreferences) {
-                            String filename = pref.getName().replaceFirst(".xml", "");
-                            SharedPreferences nonEncryptedPreferences = context.getSharedPreferences(filename, Context.MODE_PRIVATE);
-                            clearVisitorData(context, nonEncryptedPreferences);
-                            pref.delete();
-                        }
-                    }
-                    preferences.edit().putBoolean(PREFS_KEY_NON_ENCRYPTED_PREFERENCES_REMOVED, true).apply();
-                }
-            } catch (GeneralSecurityException | IOException exception) {
-                WebimInternalLog.getInstance().log(
-                    "Error while opening EncryptedSharedPreferences: " + exception.getMessage(),
-                    Webim.SessionBuilder.WebimLogVerbosityLevel.ERROR);
-                if (errorHandler != null) {
-                    errorHandler.onError(new WebimErrorImpl<>(FatalErrorType.GENERAL_SECURITY_ERROR, exception.getMessage()));
-                }
-                preferences = context.getSharedPreferences(SHARED_PREFS_NAME_DEPRECATED + visitorSuffix, Context.MODE_PRIVATE);
-            }
+            preferences = getSharedPreferences(context, visitorFields, errorHandler);
         }
 
         String previousAccount = preferences.getString(PREFS_KEY_PREVIOUS_ACCOUNT, null);
@@ -384,7 +350,8 @@ public class WebimSessionImpl implements WebimSession {
                 actions,
                 messageHolder,
                 new MessageComposingHandlerImpl(handler, actions),
-                new LocationSettingsHolder(preferences)
+                new LocationSettingsHolder(preferences),
+                location
         );
 
         final HistoryPoller hPoller = new HistoryPoller(sessionDestroyer,
@@ -434,6 +401,57 @@ public class WebimSessionImpl implements WebimSession {
                 Webim.SessionBuilder.WebimLogVerbosityLevel.DEBUG);
 
         return session;
+    }
+
+    private static SharedPreferences getSharedPreferences(@NonNull Context context, @Nullable ProvidedVisitorFields visitorFields, @Nullable FatalErrorHandler errorHandler) {
+        String visitorSuffix = ((visitorFields == null) ? "anonymous" : visitorFields.getId());
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return context.getSharedPreferences(SHARED_PREFS_NAME_DEPRECATED + visitorSuffix, Context.MODE_PRIVATE);
+        }
+
+        SharedPreferences preferences;
+        String encryptedPreferenceFilename = SHARED_PREFS_NAME + visitorSuffix + "-enc";
+        try {
+            preferences = getEncryptedSharedPrefences(context, encryptedPreferenceFilename);
+        } catch (GeneralSecurityException | IOException exception) {
+            WebimInternalLog.getInstance().log(
+                "Error while opening EncryptedSharedPreferences: " + exception.getMessage(),
+                Webim.SessionBuilder.WebimLogVerbosityLevel.ERROR);
+            if (errorHandler != null) {
+                errorHandler.onError(new WebimErrorImpl<>(FatalErrorType.GENERAL_SECURITY_ERROR, exception.getMessage()));
+            }
+            preferences = context.getSharedPreferences(SHARED_PREFS_NAME_DEPRECATED + visitorSuffix, Context.MODE_PRIVATE);
+        }
+        return preferences;
+    }
+
+    private static SharedPreferences getEncryptedSharedPrefences(Context context, String encryptedPreferenceFilename) throws GeneralSecurityException, IOException {
+        String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+
+        SharedPreferences encryptedPreferences;
+        encryptedPreferences = EncryptedSharedPreferences.create(
+            encryptedPreferenceFilename,
+            masterKeyAlias,
+            context,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        );
+
+        boolean nonEncryptedPreferenceFilesRemoved = encryptedPreferences.getBoolean(PREFS_KEY_NON_ENCRYPTED_PREFERENCES_REMOVED, false);
+        if (!nonEncryptedPreferenceFilesRemoved) {
+            // remove all non-encrypted data
+            List<File> deprecatedNonEncryptedPreferences = getDeprecatedPreferencesFiles(context);
+            if (deprecatedNonEncryptedPreferences != null) {
+                for (File pref : deprecatedNonEncryptedPreferences) {
+                    String filename = pref.getName().replaceFirst(".xml", "");
+                    SharedPreferences nonEncryptedPreferences = context.getSharedPreferences(filename, Context.MODE_PRIVATE);
+                    clearVisitorData(context, nonEncryptedPreferences);
+                    pref.delete();
+                }
+            }
+            encryptedPreferences.edit().putBoolean(PREFS_KEY_NON_ENCRYPTED_PREFERENCES_REMOVED, true).apply();
+        }
+        return encryptedPreferences;
     }
 
     private static List<File> getDeprecatedPreferencesFiles(Context context) {
@@ -1053,12 +1071,12 @@ public class WebimSessionImpl implements WebimSession {
         }
 
         @Override
-        public void onDeltaList(@NonNull List<DeltaItem> list) {
+        public void onDeltaList(@NonNull List<DeltaItem<?>> list) {
             if ((messageStream == null) || (messageHolder == null)) {
                 throw new IllegalStateException();
             }
 
-            for (DeltaItem deltaItem : list) {
+            for (DeltaItem<?> deltaItem : list) {
                 DeltaItem.Type deltaType = deltaItem.getObjectType();
                 if (deltaType == null) {
                     continue;
@@ -1128,7 +1146,7 @@ public class WebimSessionImpl implements WebimSession {
             }
         }
 
-        private void handleChatDelta(DeltaItem deltaItem) {
+        private void handleChatDelta(DeltaItem<?> deltaItem) {
             if (deltaItem.getEvent() != DeltaItem.Event.UPDATE) {
                 return;
             }
@@ -1138,10 +1156,19 @@ public class WebimSessionImpl implements WebimSession {
                 currentChat.setUnreadByVisitorTimestamp(0);
             }
 
-            messageStream.onChatUpdated(currentChat, false);
+            messageStream.onChatUpdated(currentChat);
+
+            if (currentChat != null) {
+                for (MessageItem messageItem : currentChat.getMessages()) {
+                    MessageImpl message = historyChatMessageMapper.map(messageItem);
+                    if (message != null) {
+                        historyPoller.insertMessageInDB(message);
+                    }
+                }
+            }
         }
 
-        private void handleChatMessageDelta(DeltaItem deltaItem) {
+        private void handleChatMessageDelta(DeltaItem<?> deltaItem) {
             DeltaItem.Event deltaEvent = deltaItem.getEvent();
 
             if (deltaEvent == DeltaItem.Event.DELETE) {
@@ -1203,7 +1230,7 @@ public class WebimSessionImpl implements WebimSession {
             }
         }
 
-        private void handleChatOperatorDelta(DeltaItem deltaItem) {
+        private void handleChatOperatorDelta(DeltaItem<?> deltaItem) {
             if (deltaItem.getEvent() != DeltaItem.Event.UPDATE) {
                 return;
             }
@@ -1216,7 +1243,7 @@ public class WebimSessionImpl implements WebimSession {
             messageStream.onOperatorUpdated(currentChat);
         }
 
-        private void handleChatOperatorTypingDelta(DeltaItem deltaItem) {
+        private void handleChatOperatorTypingDelta(DeltaItem<?> deltaItem) {
             if (deltaItem.getEvent() != DeltaItem.Event.UPDATE) {
                 return;
             }
@@ -1229,7 +1256,7 @@ public class WebimSessionImpl implements WebimSession {
             messageStream.onOperatorTypingUpdated(currentChat);
         }
 
-        private void handleChatReadByVisitorDelta(DeltaItem deltaItem) {
+        private void handleChatReadByVisitorDelta(DeltaItem<?> deltaItem) {
             if (deltaItem.getEvent() != DeltaItem.Event.UPDATE) {
                 return;
             }
@@ -1248,7 +1275,7 @@ public class WebimSessionImpl implements WebimSession {
             }
         }
 
-        private void handleChatStateDelta(DeltaItem deltaItem) {
+        private void handleChatStateDelta(DeltaItem<?> deltaItem) {
             if (deltaItem.getEvent() != DeltaItem.Event.UPDATE) {
                 return;
             }
@@ -1261,7 +1288,7 @@ public class WebimSessionImpl implements WebimSession {
             messageStream.onChatStateUpdated(currentChat);
         }
 
-        private void handleChatUnreadByOperatorSinceTimestampDelta(DeltaItem deltaItem) {
+        private void handleChatUnreadByOperatorSinceTimestampDelta(DeltaItem<?> deltaItem) {
             if (deltaItem.getEvent() != DeltaItem.Event.UPDATE) {
                 return;
             }
@@ -1285,12 +1312,12 @@ public class WebimSessionImpl implements WebimSession {
             }
         }
 
-        private void handleDepartmentListDelta(DeltaItem deltaItem) {
+        private void handleDepartmentListDelta(DeltaItem<?> deltaItem) {
             List<DepartmentItem> departmentItemList = (List<DepartmentItem>) deltaItem.getData();
             messageStream.onReceivingDepartmentList(departmentItemList);
         }
 
-        private void handleOperatorRateDelta(DeltaItem deltaItem) {
+        private void handleOperatorRateDelta(DeltaItem<?> deltaItem) {
             if (deltaItem.getEvent() != DeltaItem.Event.UPDATE) {
                 return;
             }
@@ -1304,7 +1331,7 @@ public class WebimSessionImpl implements WebimSession {
             }
         }
 
-        private void handleHistoryRevision(DeltaItem deltaItem) {
+        private void handleHistoryRevision(DeltaItem<?> deltaItem) {
             if (deltaItem.getEvent() != DeltaItem.Event.UPDATE) {
                 return;
             }
@@ -1313,15 +1340,14 @@ public class WebimSessionImpl implements WebimSession {
             historyPoller.requestHistorySince(revisionItem.getRevision());
         }
 
-        private void handleMessageRead(DeltaItem deltaItem) {
+        private void handleMessageRead(DeltaItem<?> deltaItem) {
             DeltaItem.Event deltaEvent = deltaItem.getEvent();
             String id = deltaItem.getId();
             Object data = deltaItem.getData();
             if (data instanceof Boolean && deltaEvent == DeltaItem.Event.UPDATE) {
                 boolean isRead = (Boolean) data;
                 if (currentChat != null) {
-                    for (ListIterator<MessageItem> iterator
-                         = currentChat.getMessages().listIterator(); iterator.hasNext(); ) {
+                    for (ListIterator<MessageItem> iterator = currentChat.getMessages().listIterator(); iterator.hasNext(); ) {
                         MessageItem messageItem = iterator.next();
                         if (messageItem.getId().equals(id)) {
                             messageItem.setRead(isRead);
@@ -1347,7 +1373,7 @@ public class WebimSessionImpl implements WebimSession {
             }
         }
 
-        private void handlerUnreadByVisitor(DeltaItem deltaItem) {
+        private void handlerUnreadByVisitor(DeltaItem<?> deltaItem) {
             if (deltaItem.getEvent() != DeltaItem.Event.UPDATE) {
                 return;
             }
@@ -1376,7 +1402,7 @@ public class WebimSessionImpl implements WebimSession {
 
         }
 
-        private void handleVisitSessionStateDelta(DeltaItem deltaItem) {
+        private void handleVisitSessionStateDelta(DeltaItem<?> deltaItem) {
             String sessionState = (String) deltaItem.getData();
 
             if (sessionState.equals(VisitSessionStateItem.OFFLINE_MESSAGE.getTypeValue())) {
@@ -1389,7 +1415,7 @@ public class WebimSessionImpl implements WebimSession {
             }
         }
 
-        private void handleSurveyDelta(DeltaItem deltaItem) {
+        private void handleSurveyDelta(DeltaItem<?> deltaItem) {
             SurveyItem surveyItem = (SurveyItem) deltaItem.getData();
             if (surveyItem != null) {
                 messageStream.onSurveyReceived(surveyItem);
@@ -1569,12 +1595,9 @@ public class WebimSessionImpl implements WebimSession {
         @Override
         public void execute(final @NonNull Runnable command) {
             if (!destroyed.isDestroyed()) {
-                handled.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!destroyed.isDestroyed()) {
-                            command.run();
-                        }
+                handled.post(() -> {
+                    if (!destroyed.isDestroyed()) {
+                        command.run();
                     }
                 });
             }

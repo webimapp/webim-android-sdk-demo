@@ -9,6 +9,7 @@ import ru.webim.android.sdk.Webim;
 import ru.webim.android.sdk.WebimSession;
 import ru.webim.android.sdk.impl.InternalUtils;
 import ru.webim.android.sdk.impl.WebimErrorImpl;
+import ru.webim.android.sdk.impl.backend.callbacks.DeltaCallback;
 import ru.webim.android.sdk.impl.items.delta.DeltaFullUpdate;
 import ru.webim.android.sdk.impl.items.delta.DeltaItem;
 import ru.webim.android.sdk.impl.items.responses.DeltaResponse;
@@ -24,7 +25,8 @@ public class DeltaRequestLoop extends AbstractRequestLoop {
     public static final String INCORRECT_SERVER_ANSWER = "Incorrect server answer";
     private static int providedAuthTokenErrorCount = 0;
     private final @Nullable String appVersion;
-    private final @NonNull DeltaCallback callback;
+    private final @NonNull
+    DeltaCallback callback;
     private final @NonNull String deviceId;
     private final @NonNull String platform;
     private final @Nullable String prechatFields;
@@ -36,8 +38,7 @@ public class DeltaRequestLoop extends AbstractRequestLoop {
     private volatile @Nullable String pushToken;
     private @Nullable AuthData authData;
     private @NonNull String location;
-    private @Nullable ProvidedAuthorizationTokenStateListener
-            providedAuthorizationTokenStateListener;
+    private @Nullable ProvidedAuthorizationTokenStateListener providedAuthorizationTokenStateListener;
     private @Nullable String providedAuthorizationToken;
     private @Nullable String visitorJson;
     private @Nullable String sessionId;
@@ -137,12 +138,7 @@ public class DeltaRequestLoop extends AbstractRequestLoop {
         authData = null;
         since = 0;
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                runIteration();
-            }
-        }).start();
+        new Thread(this::runIteration).start();
     }
 
     @Override
@@ -160,15 +156,10 @@ public class DeltaRequestLoop extends AbstractRequestLoop {
                         handleProvidedAuthorizationTokenError();
                     } else {
                         running = false;
-                        callbackExecutor.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                errorListener.onError(
-                                        exception.getRequest().request().url().toString(),
-                                        exception.getError(),
-                                        exception.getHttpCode());
-                            }
-                        });
+                        callbackExecutor.execute(() -> errorListener.onError(
+                                exception.getRequest().request().url().toString(),
+                                exception.getError(),
+                                exception.getHttpCode()));
                     }
                 } catch (InterruptedRuntimeException ignored) { }
             }
@@ -202,21 +193,18 @@ public class DeltaRequestLoop extends AbstractRequestLoop {
 
             if ((delta.getDeltaList() != null) && (delta.getDeltaList().size() != 0)
                     || (delta.getFullUpdate() == null)) {
-                callbackExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (sessionCallback != null) {
-                            sessionCallback.onFailure(new WebimErrorImpl<>(
-                                    WebimSession.SessionCallback.SessionError.REQUEST_ERROR,
-                                    null)
-                            );
-                        }
-                        errorListener.onError(
-                                request.request().url().toString(),
-                                INCORRECT_SERVER_ANSWER,
-                                200
+                callbackExecutor.execute(() -> {
+                    if (sessionCallback != null) {
+                        sessionCallback.onFailure(new WebimErrorImpl<>(
+                                WebimSession.SessionCallback.SessionError.REQUEST_ERROR,
+                                null)
                         );
                     }
+                    errorListener.onError(
+                            request.request().url().toString(),
+                            INCORRECT_SERVER_ANSWER,
+                            200
+                    );
                 });
 
                 return;
@@ -227,12 +215,9 @@ public class DeltaRequestLoop extends AbstractRequestLoop {
                 since = delta.getRevision();
             }
 
-            callbackExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (sessionCallback != null) {
-                        sessionCallback.onSuccess();
-                    }
+            callbackExecutor.execute(() -> {
+                if (sessionCallback != null) {
+                    sessionCallback.onSuccess();
                 }
             });
             processFullUpdate(delta.getFullUpdate());
@@ -265,7 +250,7 @@ public class DeltaRequestLoop extends AbstractRequestLoop {
             if (delta.getFullUpdate() != null) {
                 processFullUpdate(delta.getFullUpdate());
             } else {
-                final List<DeltaItem> list = delta.getDeltaList();
+                final List<DeltaItem<?>> list = delta.getDeltaList();
                 if (list != null && list.size() != 0) {
                     callbackExecutor.execute(new Runnable() {
                         @Override

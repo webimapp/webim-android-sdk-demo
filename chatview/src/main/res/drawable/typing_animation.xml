@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/typing_one" android:duration="250" />
+    <item android:drawable="@drawable/typing_two" android:duration="250" />
+    <item android:drawable="@drawable/typing_three" android:duration="250" />
+    <item android:drawable="@drawable/typing_four" android:duration="250" />
+</animation-list>

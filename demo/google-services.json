@@ -1,39 +1,80 @@
 {
   "project_info": {
-    "project_number": "815830009496",
-    "firebase_url": "https://ru-sdk.firebaseio.com",
-    "project_id": "ru-sdk",
-    "storage_bucket": "ru-sdk.appspot.com"
+    "project_number": "694403499568",
+    "firebase_url": "https://webim-demo-chat.firebaseio.com",
+    "project_id": "webim-demo-chat",
+    "storage_bucket": "webim-demo-chat.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:815830009496:android:4a9b14ff93d5f6b7",
+        "mobilesdk_app_id": "1:694403499568:android:cb1d0716203cb55a1ecff5",
         "android_client_info": {
-          "package_name": "ru.webim.demo.client"
+          "package_name": "chat.rox.demo"
         }
       },
       "oauth_client": [
         {
-          "client_id": "815830009496-vo8ihjkplkirkp3sfp9ci8cdal3pq25n.apps.googleusercontent.com",
+          "client_id": "694403499568-kaloimvei86t8jlismqq7cd6cdeaqnd8.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCIG6QFDWqlaCSh0rN0-CnMtx_SLOI9BNw"
+          "current_key": "AIzaSyC8G1vvN7XkqhVimjiNAEwBffEqf72J6S4"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "694403499568-kaloimvei86t8jlismqq7cd6cdeaqnd8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "694403499568-b6v842mbkubljsikbh0ghrucigs7u056.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "ru.webim.Webim-Client"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:694403499568:android:b2fb0f09ad68bdbb1ecff5",
+        "android_client_info": {
+          "package_name": "ru.webim.demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "694403499568-kaloimvei86t8jlismqq7cd6cdeaqnd8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8G1vvN7XkqhVimjiNAEwBffEqf72J6S4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "694403499568-kaloimvei86t8jlismqq7cd6cdeaqnd8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "694403499568-b6v842mbkubljsikbh0ghrucigs7u056.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "ru.webim.Webim-Client"
+              }
+            }
+          ]
         }
       }
     }

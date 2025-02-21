@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <RatingBar
+        android:theme="@style/RatingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ratingBar"
+        android:layout_gravity="center_horizontal"
+        android:numStars="5"
+        android:progressBackgroundTint="?attr/chv_rating_background_tint"
+        android:stepSize="1" />
+
+    <Button
+        android:id="@+id/ratingBarButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/background_send_rating"
+        android:elevation="6dp"
+        android:padding="5dp"
+        android:stateListAnimator="@null"
+        android:text="@string/rate_operator_button"
+        android:textColor="?attr/chv_text_light"
+        android:translationZ="4dp"/>
+</LinearLayout>

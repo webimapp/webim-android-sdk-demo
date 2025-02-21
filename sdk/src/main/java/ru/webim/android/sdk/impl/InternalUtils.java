@@ -408,7 +408,7 @@ public final class InternalUtils {
     }
 
     @Nullable
-    private static List<List<Message.KeyboardButtons>> extractButtons(@Nullable KeyboardItem keyboardItem) {
+    private static List<List<Message.KeyboardButton>> extractButtons(@Nullable KeyboardItem keyboardItem) {
         if (keyboardItem != null && keyboardItem.getButtons() != null) {
             return getKeyboardButtons(keyboardItem);
         } else {
@@ -416,25 +416,26 @@ public final class InternalUtils {
         }
     }
 
-    private static List<List<Message.KeyboardButtons>> getKeyboardButtons(KeyboardItem keyboardItem) {
-        List<List<Message.KeyboardButtons>> keyboardButtons = new ArrayList<>();
+    private static List<List<Message.KeyboardButton>> getKeyboardButtons(KeyboardItem keyboardItem) {
+        List<List<Message.KeyboardButton>> keyboardButtons = new ArrayList<>();
         for (List<KeyboardItem.Button> buttonList : keyboardItem.getButtons()) {
             keyboardButtons.add(getButtons(buttonList));
         }
         return keyboardButtons;
     }
 
-    private static List<Message.KeyboardButtons> getButtons(List<KeyboardItem.Button> buttonList) {
-        List<Message.KeyboardButtons> keyboardButtonsList = new ArrayList<>();
+    private static List<Message.KeyboardButton> getButtons(List<KeyboardItem.Button> buttonList) {
+        List<Message.KeyboardButton> keyboardButtonList = new ArrayList<>();
         for (KeyboardItem.Button buttonItem : buttonList) {
-            Message.KeyboardButtons button = new MessageImpl.KeyboardButtonsImpl(
+            Message.KeyboardButton button = new MessageImpl.KeyboardButtonImpl(
                 buttonItem.getId(),
                 buttonItem.getText(),
-                getConfiguration(buttonItem.getConfiguration())
+                getConfiguration(buttonItem.getConfiguration()),
+                getParams(buttonItem.getParams())
             );
-            keyboardButtonsList.add(button);
+            keyboardButtonList.add(button);
         }
-        return keyboardButtonsList;
+        return keyboardButtonList;
     }
 
     @Nullable
@@ -459,31 +460,32 @@ public final class InternalUtils {
         return new MessageImpl.StickerImpl(stickerItem.getStickerId());
     }
 
-    private static Message.KeyboardButtons extractButton(KeyboardItem.Button keyboardRequest) {
-        return new MessageImpl.KeyboardButtonsImpl(
+    private static Message.KeyboardButton extractButton(KeyboardItem.Button keyboardRequest) {
+        return new MessageImpl.KeyboardButtonImpl(
             keyboardRequest.getId(),
             keyboardRequest.getText(),
-            getConfiguration(keyboardRequest.getConfiguration())
+            getConfiguration(keyboardRequest.getConfiguration()),
+            getParams(keyboardRequest.getParams())
         );
     }
 
-    private static Message.KeyboardButtons.Configuration getConfiguration(KeyboardItem.Button.Configuration configurationItem) {
+    private static Message.KeyboardButton.Configuration getConfiguration(KeyboardItem.Button.Configuration configurationItem) {
         if (configurationItem == null) {
             return null;
         }
 
-        Message.KeyboardButtons.Configuration.Type type;
+        Message.KeyboardButton.Configuration.Type type;
         String data;
 
         if (configurationItem.getLink() != null) {
-            type = Message.KeyboardButtons.Configuration.Type.URL_BUTTON;
+            type = Message.KeyboardButton.Configuration.Type.URL_BUTTON;
             data = configurationItem.getLink();
         } else if (configurationItem.getTextToInsert() != null) {
-            type = Message.KeyboardButtons.Configuration.Type.INSERT_BUTTON;
+            type = Message.KeyboardButton.Configuration.Type.INSERT_BUTTON;
             data = configurationItem.getTextToInsert();
         } else {
             // Unknown type, set default values not to get NPE in runtime
-            type = Message.KeyboardButtons.Configuration.Type.INSERT_BUTTON;
+            type = Message.KeyboardButton.Configuration.Type.INSERT_BUTTON;
             data = "";
             WebimInternalLog.getInstance().log(
                 "Unknown type of button configuration",
@@ -491,20 +493,38 @@ public final class InternalUtils {
             );
         }
 
-        Message.KeyboardButtons.Configuration.State state;
+        Message.KeyboardButton.Configuration.State state;
         switch (configurationItem.getState()) {
             case HIDDEN:
-                state = Message.KeyboardButtons.Configuration.State.HIDDEN;
+                state = Message.KeyboardButton.Configuration.State.HIDDEN;
                 break;
             case SHOWING:
-                state = Message.KeyboardButtons.Configuration.State.SHOWING;
+                state = Message.KeyboardButton.Configuration.State.SHOWING;
                 break;
             case SHOWING_SELECTED:
             default:
-                state = Message.KeyboardButtons.Configuration.State.SHOWING_SELECTED;
+                state = Message.KeyboardButton.Configuration.State.SHOWING_SELECTED;
         }
 
         return new MessageImpl.ConfigurationImpl(type, state, data);
+    }
+
+    private static Message.KeyboardButton.Params getParams(KeyboardItem.Button.Params params) {
+        if (params == null) {
+            return null;
+        }
+
+        Message.KeyboardButton.Params.Type type;
+        switch (params.getType()) {
+            case URL:
+                type = Message.KeyboardButton.Params.Type.URL;
+                break;
+            case ACTION:
+            default:
+                type = Message.KeyboardButton.Params.Type.ACTION;
+        }
+
+        return new MessageImpl.ParamsImpl(type, params.getAction(), params.getColor());
     }
 
     @Nullable

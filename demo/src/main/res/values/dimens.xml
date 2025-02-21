@@ -23,7 +23,7 @@
     <dimen name="alert_dialog_image_margin">7dp</dimen>
     <dimen name="alert_dialog_image_padding">1dp</dimen>
 
-    <dimen name="message_time_marginTop">2dp</dimen>
+    <dimen name="message_time_marginTop">4dp</dimen>
 
     <dimen name="item_massage_main_margin">10dp</dimen>
     <dimen name="item_service_massage_main_margin">55dp</dimen>

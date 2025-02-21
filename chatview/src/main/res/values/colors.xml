@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="webim_color_primary">#272A51</color>
+    <color name="webim_primary_dark">#181B3D</color>
+    <color name="webim_color_accent">#15ACD2</color>
+
+    <color name="color_background">#EEEFF4</color>
+    <color name="colorBackgroundActivityMain">#272A51</color>
+    <color name="message_menu_background">#333333</color>
+    <color name="colorBackgroundChatMenu">#99000000</color>
+    <color name="colorBackgroundChatStart">#EEF0F4</color>
+    <color name="colorBackgroundChatEnd">#EAECF2</color>
+
+    <color name="text_color">#272A51</color>
+    <color name="colorTextActivityMain">#FFFFFF</color>
+    <color name="colorTexWhenTyping">#BDC0CA</color>
+
+    <color name="info_msg_bubble">#145C5F8A</color>
+
+    <color name="received_msg_bubble">#FFFFFF</color>
+    <color name="received_msg_text">#272A51</color>
+    <color name="received_msg_time_text">#805C5F8A</color>
+    <color name="received_msg_edited_text">#805C5F8A</color>
+    <color name="received_msg_select">#E4F9FF</color>
+
+    <color name="sending_msg_bubble">#15ACD2</color>
+    <color name="sending_msg_text">#FFFFFF</color>
+    <color name="sending_msg_file_property">#99FFFFFF</color>
+    <color name="sending_msg_time_text">#805C5F8A</color>
+    <color name="sending_msg_edited_text">#805C5F8A</color>
+    <color name="sending_msg_select">#008AAD</color>
+
+    <color name="message_border">#E0E2EA</color>
+    <color name="items_border">#5C5F8A</color>
+
+    <color name="system_msg">#5C5F8A</color>
+    <color name="system_msg_time">#805C5f8A</color>
+    <color name="text_hint">#8A393F6B</color>
+
+    <color name="circle_for_animation">#FFFFFF</color>
+
+    <color name="rating_inactive">#D3D3D3</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="orange">#FFA500</color>
+    <color name="grey">#808080</color>
+    <color name="purple">#26274C</color>
+    <color name="blue">#15ACD2</color>
+    <color name="red">#D24215</color>
+
+    <color name="syncing_background">#D7D7D7</color>
+    <color name="net_lost_background">#F44336</color>
+    <color name="net_losing_background">#FF9800</color>
+
+    <color name="transparent">#00000000</color>
+
+    <color name="keyboard_button_pending">#15ACD2</color>
+    <color name="keyboard_button_completed">#FFFFFF</color>
+    <color name="keyboard_button_canceled">#BEBFD0</color>
+
+    <color name="keyboard_background">#E0E3EB</color>
+    <color name="message_item_selected">#0D000000</color>
+</resources>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <RelativeLayout
+        android:id="@+id/context_menu_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:elevation="4dp"
+        android:background="?attr/chv_message_menu_background">
+
+        <RelativeLayout
+            android:id="@+id/relLayoutReply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/alert_dialog_marginLeft"
+            android:paddingTop="@dimen/alert_dialog_marginLeft"
+            android:paddingEnd="@dimen/alert_dialog_relative_marginEnd">
+
+            <ImageView
+                android:id="@+id/imageReply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_margin="@dimen/alert_dialog_image_margin"
+                android:contentDescription="@string/reply"
+                android:padding="@dimen/alert_dialog_image_padding"
+                app:tint="?attr/chv_text_light"
+                app:srcCompat="@drawable/arrow_forward" />
+
+            <TextView
+                android:id="@+id/textReply"
+                style="@android:style/TextAppearance.Medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/alert_dialog_marginLeft"
+                android:layout_toEndOf="@id/imageReply"
+                android:text="@string/reply"
+                android:textColor="?attr/chv_text_light" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relLayoutCopy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/relLayoutReply"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/alert_dialog_marginLeft"
+            android:paddingTop="@dimen/alert_dialog_marginLeft"
+            android:paddingEnd="@dimen/alert_dialog_relative_marginEnd">
+
+            <ImageView
+                android:id="@+id/imageCopy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_margin="@dimen/alert_dialog_image_margin"
+                android:contentDescription="@string/copy"
+                android:padding="@dimen/alert_dialog_image_padding"
+                app:tint="?attr/chv_text_light"
+                app:srcCompat="@drawable/ic_copy" />
+
+            <TextView
+                android:id="@+id/texCopy"
+                style="@android:style/TextAppearance.Medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/alert_dialog_marginLeft"
+                android:layout_toEndOf="@id/imageCopy"
+                android:text="@string/copy"
+                android:textColor="?attr/chv_text_light" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relLayoutEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/relLayoutCopy"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/alert_dialog_marginLeft"
+            android:paddingTop="@dimen/alert_dialog_marginLeft"
+            android:paddingEnd="@dimen/alert_dialog_relative_marginEnd">
+
+            <ImageView
+                android:id="@+id/imageEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_margin="@dimen/alert_dialog_image_margin"
+                android:contentDescription="@string/edit"
+                android:padding="@dimen/alert_dialog_image_padding"
+                app:tint="?attr/chv_text_light"
+                app:srcCompat="@drawable/ic_group" />
+
+            <TextView
+                android:id="@+id/textEdit"
+                style="@android:style/TextAppearance.Medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/alert_dialog_marginLeft"
+                android:layout_toEndOf="@id/imageEdit"
+                android:text="@string/edit"
+                android:textColor="?attr/chv_text_light" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relLayoutDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/relLayoutEdit"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/alert_dialog_marginLeft"
+            android:paddingEnd="@dimen/alert_dialog_relative_marginEnd"
+            android:paddingBottom="16dp">
+
+            <ImageView
+                android:id="@+id/imageDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_margin="@dimen/alert_dialog_image_margin"
+                android:layout_marginBottom="@dimen/alert_dialog_image_margin"
+                android:contentDescription="@string/delete"
+                android:padding="@dimen/alert_dialog_image_padding"
+                app:tint="?attr/chv_text_light"
+                app:srcCompat="@drawable/ic_trash" />
+
+            <TextView
+                android:id="@+id/textDelete"
+                style="@android:style/TextAppearance.Medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/alert_dialog_marginLeft"
+                android:layout_toEndOf="@id/imageDelete"
+                android:text="@string/delete"
+                android:textColor="?attr/chv_text_light" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/relLayoutDownload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/relLayoutDelete"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/alert_dialog_marginLeft"
+            android:paddingEnd="@dimen/alert_dialog_relative_marginEnd"
+            android:paddingBottom="16dp">
+
+            <ImageView
+                android:id="@+id/imageDownload"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_margin="@dimen/alert_dialog_image_margin"
+                android:layout_marginBottom="@dimen/alert_dialog_image_margin"
+                android:contentDescription="@string/download"
+                android:padding="@dimen/alert_dialog_image_padding"
+                app:tint="?attr/chv_text_light"
+                app:srcCompat="@drawable/ic_download_attachment" />
+
+            <TextView
+                android:id="@+id/textDownload"
+                style="@android:style/TextAppearance.Medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/alert_dialog_marginLeft"
+                android:layout_toEndOf="@id/imageDownload"
+                android:text="@string/download"
+                android:textColor="?attr/chv_text_light" />
+        </RelativeLayout>
+    </RelativeLayout>
+</FrameLayout>

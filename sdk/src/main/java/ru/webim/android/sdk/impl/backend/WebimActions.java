@@ -3,15 +3,19 @@ package ru.webim.android.sdk.impl.backend;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import okhttp3.RequestBody;
 import ru.webim.android.sdk.MessageStream;
+import ru.webim.android.sdk.impl.backend.callbacks.DefaultCallback;
+import ru.webim.android.sdk.impl.backend.callbacks.SendOrDeleteMessageInternalCallback;
+import ru.webim.android.sdk.impl.backend.callbacks.SurveyFinishCallback;
+import ru.webim.android.sdk.impl.backend.callbacks.SurveyQuestionCallback;
+import ru.webim.android.sdk.impl.items.requests.AutocompleteRequest;
+import ru.webim.android.sdk.impl.items.responses.ServerSettingsResponse;
 import ru.webim.android.sdk.impl.items.responses.DefaultResponse;
 import ru.webim.android.sdk.impl.items.responses.HistoryBeforeResponse;
 import ru.webim.android.sdk.impl.items.responses.HistorySinceResponse;
-import ru.webim.android.sdk.impl.items.responses.LocationSettingsResponse;
 import ru.webim.android.sdk.impl.items.responses.LocationStatusResponse;
 import ru.webim.android.sdk.impl.items.responses.SearchResponse;
-
-import okhttp3.RequestBody;
 
 public interface WebimActions {
 
@@ -49,10 +53,19 @@ public interface WebimActions {
 
     void clearChatHistory(@NonNull DefaultCallback<DefaultResponse> callback);
 
+    void getAccountConfig(@NonNull String location, @NonNull DefaultCallback<ServerSettingsResponse> callback);
+
+    void autocomplete(
+        @NonNull String url,
+        @NonNull AutocompleteRequest autocompleteRequest,
+        @NonNull MessageStream.AutocompleteCallback callback
+    );
+
     void startChat(@NonNull String clientSideId,
                    @Nullable String departmentKey,
                    @Nullable String firstQuestion,
-                   @Nullable String customFields);
+                   @Nullable String customFields,
+                   @NonNull DefaultCallback<DefaultResponse> callback);
 
     void setChatRead();
 
@@ -82,8 +95,7 @@ public interface WebimActions {
     void requestHistorySince(@Nullable String since,
                              @NonNull DefaultCallback<HistorySinceResponse> callback);
 
-    void requestHistorySinceForPoller(@Nullable String since,
-                             @NonNull DefaultCallback<HistorySinceResponse> callback);
+    void requestHistorySinceForPoller(@Nullable String since, @NonNull DefaultCallback<HistorySinceResponse> callback);
 
     void updateWidgetStatus(@NonNull String data);
 
@@ -104,5 +116,5 @@ public interface WebimActions {
 
     void getLocationStatus(@NonNull String location, @NonNull DefaultCallback<LocationStatusResponse> callback);
 
-    void getLocationConfig(@NonNull String location, @NonNull DefaultCallback<LocationSettingsResponse> callback);
+    void sendGeolocation(float latitude, float longitude, @Nullable MessageStream.GeolocationCallback callback);
 }

@@ -1,0 +1,129 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="ChatViewDefaultStyle">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/webim_color_primary</item>
+        <item name="colorPrimaryDark">@color/webim_primary_dark</item>
+        <item name="colorAccent">@color/webim_color_accent</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.Launcher">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+    </style>
+
+    <style name="RatingBar" parent="Theme.AppCompat">
+        <item name="colorControlNormal">@color/grey</item>
+        <item name="colorControlActivated">@color/orange</item>
+    </style>
+
+    <style name="SurveyRatingBar" parent="Theme.AppCompat">
+        <item name="colorControlNormal">@color/grey</item>
+        <item name="colorControlActivated">@color/blue</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme.ButtonGreen" parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/webim_color_accent</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="AppTheme.ButtonPurple" parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/webim_primary_dark</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="DynamicContextMenuTheme">
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <style name="SurveyDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/SurveyDialogStyle</item>
+
+    </style>
+
+    <style name="SurveyDialogStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+
+    <style name="SurveyEditTextTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorControlNormal">@color/grey</item>
+        <item name="colorControlActivated">@color/blue</item>
+        <item name="colorControlHighlight">@color/blue</item>
+    </style>
+
+    <style name="ChatViewBase" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="chv_account_name">@string/base_account_name</item>
+        <item name="chv_location_name">@string/base_location_name</item>
+        <item name="chv_chat_style">@style/ChatViewDefaultStyle</item>
+    </style>
+
+    <style name="ChatViewDefaultStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="chv_primary_color">@color/webim_color_primary</item>
+        <item name="chv_secondary_color">@color/colorBackgroundChatStart</item>
+        <item name="chv_accent_color">@color/webim_color_accent</item>
+
+        <item name="chv_bar_background">@color/white</item>
+        <item name="chv_message_border">@color/message_border</item>
+        <item name="chv_text_light">@color/white</item>
+        <item name="chv_text_dark">@color/webim_color_primary</item>
+        <item name="chv_text_medium">@color/items_border</item>
+        <item name="chv_text_hint">@color/received_msg_time_text</item>
+
+        <item name="chv_sent_bubble">@drawable/background_send_message</item>
+        <item name="chv_sent_file_data">@color/sending_msg_file_property</item>
+        <item name="chv_sent_text">@color/sending_msg_text</item>
+        <item name="chv_sent_link_text">@color/sending_msg_text</item>
+        <item name="chv_sent_time_text">@color/sending_msg_time_text</item>
+        <item name="chv_sent_edited_text">@color/sending_msg_edited_text</item>
+        <item name="chv_sent_selected">@color/sending_msg_select</item>
+        <item name="chv_sent_divider">@color/sending_msg_text</item>
+
+        <item name="chv_received_bubble">@drawable/background_received_message</item>
+        <item name="chv_received_text">@color/received_msg_text</item>
+        <item name="chv_received_link_text">@color/sending_msg_bubble</item>
+        <item name="chv_received_time_text">@color/received_msg_time_text</item>
+        <item name="chv_received_edited_text">@color/received_msg_edited_text</item>
+        <item name="chv_received_selected">@color/received_msg_select</item>
+        <item name="chv_received_divider">@color/sending_msg_bubble</item>
+        <item name="chv_received_sender_name">@color/sending_msg_bubble</item>
+
+        <item name="chv_system_bubble">@drawable/background_info_message</item>
+        <item name="chv_system_text">@color/system_msg</item>
+        <item name="chv_system_link_text">@color/sending_msg_bubble</item>
+        <item name="chv_system_time_text">@color/system_msg_time</item>
+
+        <item name="chv_buttons_background">@color/keyboard_background</item>
+        <item name="chv_buttons_pending">@color/keyboard_button_pending</item>
+        <item name="chv_buttons_complete">@color/keyboard_button_completed</item>
+        <item name="chv_buttons_canceled">@color/keyboard_button_canceled</item>
+
+        <item name="chv_message_replied">@color/message_item_selected</item>
+
+        <item name="chv_prompt_syncing">@color/syncing_background</item>
+        <item name="chv_prompt_net_lost">@color/net_lost_background</item>
+        <item name="chv_prompt_net_losing">@color/net_losing_background</item>
+
+        <item name="chv_message_text_size">@dimen/text_size_small</item>
+        <item name="chv_message_corner_radius">@dimen/message_corner_radius</item>
+
+        <item name="chv_message_menu_background">@drawable/background_menu_dialog</item>
+        <item name="chv_chat_menu_background">@drawable/background_chat_menu</item>
+        <item name="chv_rating_background_tint">@color/rating_inactive</item>
+    </style>
+
+    <style name="DialogTheme" parent="AppTheme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+</resources>

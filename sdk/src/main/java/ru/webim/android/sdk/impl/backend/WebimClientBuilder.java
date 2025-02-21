@@ -11,6 +11,7 @@ import ru.webim.android.sdk.BuildConfig;
 import ru.webim.android.sdk.ProvidedAuthorizationTokenStateListener;
 import ru.webim.android.sdk.Webim;
 import ru.webim.android.sdk.WebimSession;
+import ru.webim.android.sdk.impl.backend.callbacks.DeltaCallback;
 import ru.webim.android.sdk.impl.items.delta.DeltaFullUpdate;
 import ru.webim.android.sdk.impl.items.delta.DeltaItem;
 

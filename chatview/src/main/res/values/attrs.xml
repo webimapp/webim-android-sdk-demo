@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ChatView">
+        <attr name="chv_account_name" format="string"/>
+        <attr name="chv_location_name" format="string"/>
+        <attr name="chv_chat_style" format="integer"/>
+    </declare-styleable>
+
+    <declare-styleable name="ChatViewTheme">
+        <attr name="chv_primary_color" format="integer|color" />
+        <attr name="chv_secondary_color" format="integer|color"/>
+        <attr name="chv_accent_color" format="integer|color"/>
+
+        <attr name="chv_bar_background" format="integer|color"/>
+        <attr name="chv_message_border" format="integer|color"/>
+        <attr name="chv_text_light" format="integer|color"/>
+        <attr name="chv_text_dark" format="integer|color"/>
+        <attr name="chv_text_medium" format="integer|color"/>
+        <attr name="chv_text_hint" format="integer|color"/>
+
+        <!-- Prebuild views -->
+        <attr name="chv_sent_bubble" format="integer|color"/>
+        <attr name="chv_sent_text" format="integer|color"/>
+        <attr name="chv_sent_link_text" format="integer|color"/>
+        <attr name="chv_sent_time_text" format="integer|color"/>
+        <attr name="chv_sent_edited_text" format="integer|color"/>
+        <attr name="chv_sent_selected" format="integer|color"/>
+        <attr name="chv_sent_divider" format="integer|color"/>
+        <attr name="chv_sent_file_data" format="integer|color"/>
+
+        <attr name="chv_received_bubble" format="integer|color"/>
+        <attr name="chv_received_text" format="integer|color"/>
+        <attr name="chv_received_link_text" format="integer|color"/>
+        <attr name="chv_received_time_text" format="integer|color"/>
+        <attr name="chv_received_edited_text" format="integer|color"/>
+        <attr name="chv_received_selected" format="integer|color"/>
+        <attr name="chv_received_divider" format="integer|color"/>
+        <attr name="chv_received_sender_name" format="integer|color"/>
+
+        <attr name="chv_system_bubble" format="integer|color"/>
+        <attr name="chv_system_text" format="integer|color"/>
+        <attr name="chv_system_link_text" format="integer|color"/>
+        <attr name="chv_system_time_text" format="integer|color"/>
+
+        <attr name="chv_buttons_background" format="integer|color"/>
+        <attr name="chv_buttons_pending" format="integer|color"/>
+        <attr name="chv_buttons_complete" format="integer|color"/>
+        <attr name="chv_buttons_canceled" format="integer|color"/>
+
+        <attr name="chv_message_replied" format="integer|color"/>
+
+        <attr name="chv_prompt_syncing" format="integer|color"/>
+        <attr name="chv_prompt_net_lost" format="integer|color"/>
+        <attr name="chv_prompt_net_losing" format="integer|color"/>
+
+        <attr name="chv_message_text_size" format="dimension"/>
+        <attr name="chv_message_corner_radius" format="dimension"/>
+
+        <attr name="chv_message_menu_background" format="integer|color"/>
+        <attr name="chv_chat_menu_background" format="integer|color"/>
+        <attr name="chv_rating_background_tint" format="integer|color"/>
+    </declare-styleable>
+
+    <integer name="chv_notification_bar_max_lines">4</integer>
+</resources>

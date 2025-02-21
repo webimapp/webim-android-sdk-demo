@@ -1,0 +1,48 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">0dp</dimen>
+    <dimen name="activity_vertical_margin">0dp</dimen>
+    <dimen name="chat_profile_photo_size">40dp</dimen>
+    <dimen name="chat_sent_message_margin">45dp</dimen>
+    <dimen name="fab_margin">15dp</dimen>
+
+    <dimen name="text_size_normal_header_bold">20sp</dimen>
+    <dimen name="text_size_normal_header">18sp</dimen>
+    <dimen name="text_size_normal">14sp</dimen>
+    <dimen name="text_size_small">12sp</dimen>"
+    <dimen name="message_corner_radius">16dp</dimen>"
+
+    <dimen name="badge_background_size">37dp</dimen>
+    <dimen name="badge_text_size">10sp</dimen>
+    <dimen name="badge_padding">9dp</dimen>
+
+    <!-- Dimension for alert dialog -->
+    <dimen name="alert_dialog_marginLeft">16dp</dimen>
+    <dimen name="alert_dialog_relative_marginTop">8dp</dimen>
+    <dimen name="alert_dialog_relative_marginEnd">35dp</dimen>
+    <dimen name="alert_dialog_relative_marginBottom">8dp</dimen>
+    <dimen name="alert_dialog_image_margin">7dp</dimen>
+    <dimen name="alert_dialog_image_padding">1dp</dimen>
+
+    <dimen name="message_time_marginTop">4dp</dimen>
+
+    <dimen name="item_massage_top_margin">4dp</dimen>
+    <dimen name="item_massage_main_margin">10dp</dimen>
+    <dimen name="item_service_massage_main_margin">55dp</dimen>
+    <dimen name="item_massage_paddingBottom">4dp</dimen>
+
+    <dimen name="line_spacing_normal">2dp</dimen>
+
+    <dimen name="visible_area_margin">10dp</dimen>
+    <dimen name="keyboard_padding">8dp</dimen>
+    <dimen name="button_padding">10dp</dimen>
+    <dimen name="button_margin_top">4dp</dimen>
+    <dimen name="button_margin_bottom">4dp</dimen>
+    <dimen name="button_margin_left">4dp</dimen>
+    <dimen name="button_margin_right">4dp</dimen>
+    <dimen name="button_text_size">14sp</dimen>
+
+    <dimen name="survey_radio_button_padding">8dp</dimen>
+    <dimen name="survey_dialog_corner_radius">10dp</dimen>
+    <dimen name="chat_scroll_button_margin">12dp</dimen>
+</resources>

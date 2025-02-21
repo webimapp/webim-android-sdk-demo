@@ -13,7 +13,7 @@ final public class DeltaResponse extends ErrorResponse {
     @SerializedName("fullUpdate")
     private DeltaFullUpdate fullUpdate;
     @SerializedName("deltaList")
-    private List<DeltaItem> deltaList;
+    private List<DeltaItem<?>> deltaList;
 
     public Long getRevision() {
         return revision;
@@ -23,7 +23,7 @@ final public class DeltaResponse extends ErrorResponse {
         return fullUpdate;
     }
 
-    public List<DeltaItem> getDeltaList() {
+    public List<DeltaItem<?>> getDeltaList() {
         return deltaList;
     }
 }

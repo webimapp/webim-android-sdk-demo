@@ -1,26 +1,35 @@
 package ru.webim.android.sdk.impl.backend;
 
+import static ru.webim.android.sdk.impl.backend.WebimService.PARAMETER_FILE_UPLOAD;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.jetbrains.annotations.NotNull;
-
-import ru.webim.android.sdk.MessageStream;
-import ru.webim.android.sdk.NotFatalErrorHandler.NotFatalErrorType;
-import ru.webim.android.sdk.WebimSession;
-import ru.webim.android.sdk.impl.WebimErrorImpl;
-import ru.webim.android.sdk.impl.items.responses.DefaultResponse;
-import ru.webim.android.sdk.impl.items.responses.HistoryBeforeResponse;
-import ru.webim.android.sdk.impl.items.responses.HistorySinceResponse;
-import ru.webim.android.sdk.impl.items.responses.LocationSettingsResponse;
-import ru.webim.android.sdk.impl.items.responses.LocationStatusResponse;
-import ru.webim.android.sdk.impl.items.responses.SearchResponse;
-import ru.webim.android.sdk.impl.items.responses.UploadResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
+import ru.webim.android.sdk.MessageStream;
+import ru.webim.android.sdk.NotFatalErrorHandler.NotFatalErrorType;
+import ru.webim.android.sdk.WebimSession;
+import ru.webim.android.sdk.impl.WebimErrorImpl;
+import ru.webim.android.sdk.impl.backend.callbacks.DefaultCallback;
+import ru.webim.android.sdk.impl.backend.callbacks.SendOrDeleteMessageInternalCallback;
+import ru.webim.android.sdk.impl.backend.callbacks.SurveyFinishCallback;
+import ru.webim.android.sdk.impl.backend.callbacks.SurveyQuestionCallback;
+import ru.webim.android.sdk.impl.items.SuggestionItem;
+import ru.webim.android.sdk.impl.items.requests.AutocompleteRequest;
+import ru.webim.android.sdk.impl.items.responses.AutocompleteResponse;
+import ru.webim.android.sdk.impl.items.responses.DefaultResponse;
+import ru.webim.android.sdk.impl.items.responses.HistoryBeforeResponse;
+import ru.webim.android.sdk.impl.items.responses.HistorySinceResponse;
+import ru.webim.android.sdk.impl.items.responses.LocationStatusResponse;
+import ru.webim.android.sdk.impl.items.responses.SearchResponse;
+import ru.webim.android.sdk.impl.items.responses.ServerSettingsResponse;
+import ru.webim.android.sdk.impl.items.responses.UploadResponse;
 
 public class WebimActionsImpl implements WebimActions {
     private static final MediaType PLAIN_TEXT = MediaType.parse("text/plain");
@@ -44,6 +53,7 @@ public class WebimActionsImpl implements WebimActions {
     private static final String ACTION_WIDGET_UPDATE = "widget.update";
     private static final String ACTION_SURVEY_ANSWER = "survey.answer";
     private static final String ACTION_SURVEY_CANCEL = "survey.cancel";
+    private static final String ACTION_GEOLOCATION = "geo_response";
     private static final String CHARACTERS_TO_ENCODE = "\n!#$&'()*+,/:;=?@[] \"%-.<>\\^_`{|}~";
     @NonNull
     private final ActionRequestLoop requestLoop;
@@ -262,7 +272,7 @@ public class WebimActionsImpl implements WebimActions {
             public Call<UploadResponse> makeRequest(AuthData authData) {
                 return webim.uploadFile(
                         MultipartBody.Part.createFormData(
-                                "webim_upload_file",
+                                PARAMETER_FILE_UPLOAD,
                                 filename,
                                 body),
                         CHAT_MODE_ONLINE,
@@ -361,13 +371,60 @@ public class WebimActionsImpl implements WebimActions {
     }
 
     @Override
+    public void getAccountConfig(@NonNull String location, @NonNull DefaultCallback<ServerSettingsResponse> callback) {
+        enqueueRequestLoop(new ActionRequestLoop.WebimRequest<ServerSettingsResponse>(true) {
+            @Override
+            public Call<ServerSettingsResponse> makeRequest(AuthData authData) {
+                return webim.getAccountConfig(location);
+            }
+
+            @Override
+            public void runCallback(ServerSettingsResponse response) {
+                callback.onSuccess(response);
+            }
+        });
+    }
+
+    @Override
+    public void autocomplete(@NonNull String url, @NonNull AutocompleteRequest autocompleteRequest, @NonNull MessageStream.AutocompleteCallback callback) {
+        enqueueRequestLoop(new ActionRequestLoop.WebimRequest<AutocompleteResponse>(true) {
+            @Override
+            public Call<AutocompleteResponse> makeRequest(AuthData authData) {
+                return webim.autocomplete(url, autocompleteRequest);
+            }
+
+            @Override
+            public void runCallback(AutocompleteResponse response) {
+                List<SuggestionItem> suggestions = new ArrayList<>();
+                if (response != null && response.getSuggestions() != null) {
+                    suggestions = response.getSuggestions();
+                }
+                callback.onSuccess(suggestions);
+            }
+
+            @Override
+            public boolean isHandleError(@NonNull String error) {
+                return true;
+            }
+
+            @Override
+            public void handleError(@NonNull String error) {
+                callback.onFailure(
+                    new WebimErrorImpl<>(MessageStream.AutocompleteCallback.AutocompleteError.UNKNOWN, null)
+                );
+            }
+        });
+    }
+
+    @Override
     public void startChat(@NonNull final String clientSideId,
                           @Nullable final String departmentKey,
                           @Nullable final String firstQuestion,
-                          @Nullable final String customFields) {
+                          @Nullable final String customFields,
+                          @NonNull DefaultCallback<DefaultResponse> callback) {
         clientSideId.getClass(); // NPE
 
-        enqueueRequestLoop(new ActionRequestLoop.WebimRequest<DefaultResponse>(false) {
+        enqueueRequestLoop(new ActionRequestLoop.WebimRequest<DefaultResponse>(true) {
             @Override
             public Call<DefaultResponse> makeRequest(AuthData authData) {
                 return webim.startChat(
@@ -380,6 +437,11 @@ public class WebimActionsImpl implements WebimActions {
                         firstQuestion,
                         customFields
                 );
+            }
+
+            @Override
+            public void runCallback(DefaultResponse response) {
+                callback.onSuccess(response);
             }
         });
     }
@@ -553,7 +615,8 @@ public class WebimActionsImpl implements WebimActions {
             public boolean isHandleError(@NonNull String error) {
                 return error.equals(WebimInternalError.OPERATOR_NOT_IN_CHAT)
                         || error.equals(WebimInternalError.NO_CHAT)
-                        || error.equals(WebimInternalError.NOTE_IS_TOO_LONG);
+                        || error.equals(WebimInternalError.NOTE_IS_TOO_LONG)
+                        || error.equals(WebimInternalError.OPERATOR_ALREADY_RATED);
             }
 
             @Override
@@ -566,6 +629,9 @@ public class WebimActionsImpl implements WebimActions {
                             break;
                         case WebimInternalError.NOTE_IS_TOO_LONG:
                             rateOperatorError = MessageStream.RateOperatorCallback.RateOperatorError.NOTE_IS_TOO_LONG;
+                            break;
+                        case WebimInternalError.OPERATOR_ALREADY_RATED:
+                            rateOperatorError = MessageStream.RateOperatorCallback.RateOperatorError.OPERATOR_ALREADY_RATED;
                             break;
                         default:
                             rateOperatorError = MessageStream.RateOperatorCallback.RateOperatorError.OPERATOR_NOT_IN_CHAT;
@@ -591,9 +657,7 @@ public class WebimActionsImpl implements WebimActions {
     }
 
     @Override
-    public void requestHistoryBefore
-            (final long beforeTs,
-             @NonNull final DefaultCallback<HistoryBeforeResponse> callback) {
+    public void requestHistoryBefore(final long beforeTs, @NonNull final DefaultCallback<HistoryBeforeResponse> callback) {
         callback.getClass(); // NPE
         enqueueRequestLoop(new ActionRequestLoop.WebimRequest<HistoryBeforeResponse>(true) {
             @Override
@@ -680,15 +744,23 @@ public class WebimActionsImpl implements WebimActions {
 
             @Override
             public boolean isHandleError(@NonNull String error) {
-                return error.equals(WebimInternalError.SENT_TOO_MANY_TIMES);
+                return error.equals(WebimInternalError.SENT_TOO_MANY_TIMES) ||
+                    error.equals(WebimInternalError.NO_CHAT);
             }
 
             @Override
             public void handleError(@NonNull String error) {
                 MessageStream.SendDialogToEmailAddressCallback.SendDialogToEmailAddressError sendDialogToEmailAddressError;
-                sendDialogToEmailAddressError = WebimInternalError.SENT_TOO_MANY_TIMES.equals(error)
-                        ? MessageStream.SendDialogToEmailAddressCallback.SendDialogToEmailAddressError.SENT_TOO_MANY_TIMES
-                        : MessageStream.SendDialogToEmailAddressCallback.SendDialogToEmailAddressError.UNKNOWN;
+                switch (error) {
+                    case WebimInternalError.SENT_TOO_MANY_TIMES:
+                        sendDialogToEmailAddressError = MessageStream.SendDialogToEmailAddressCallback.SendDialogToEmailAddressError.SENT_TOO_MANY_TIMES;
+                        break;
+                    case WebimInternalError.NO_CHAT:
+                        sendDialogToEmailAddressError = MessageStream.SendDialogToEmailAddressCallback.SendDialogToEmailAddressError.NO_CHAT;
+                        break;
+                    default:
+                        sendDialogToEmailAddressError = MessageStream.SendDialogToEmailAddressCallback.SendDialogToEmailAddressError.UNKNOWN;
+                }
                 sendChatToEmailCallback.onFailure(new WebimErrorImpl<>(sendDialogToEmailAddressError, error));
             }
         });
@@ -829,27 +901,45 @@ public class WebimActionsImpl implements WebimActions {
     }
 
     @Override
-    public void getLocationConfig(@NonNull String location, @NonNull DefaultCallback<LocationSettingsResponse> callback) {
-        enqueueRequestLoop(new ActionRequestLoop.WebimRequest<LocationSettingsResponse>(true) {
-
+    public void sendGeolocation(float latitude, float longitude, @Nullable final MessageStream.GeolocationCallback callback) {
+        enqueueRequestLoop(new ActionRequestLoop.WebimRequest<DefaultResponse>(callback != null) {
             @Override
-            public Call<LocationSettingsResponse> makeRequest(AuthData authData) {
-                return webim.getAccountConfig(location);
+            public Call<DefaultResponse> makeRequest(AuthData authData) {
+                return webim.sendGeolocation(
+                    ACTION_GEOLOCATION,
+                    authData.getPageId(),
+                    authData.getAuthToken(),
+                    latitude,
+                    longitude
+                );
             }
 
             @Override
-            public void runCallback(LocationSettingsResponse response) {
-                callback.onSuccess(response);
+            public void runCallback(DefaultResponse response) {
+                if (callback != null) {
+                    callback.onSuccess();
+                }
             }
 
             @Override
-            public boolean isHandleError(@NotNull String error) {
+            public boolean isHandleError(@NonNull String error) {
                 return true;
             }
 
             @Override
-            public void handleError(@NotNull String error) {
-                callback.onSuccess(null);
+            public void handleError(@NonNull String error) {
+                MessageStream.GeolocationCallback.GeolocationError constantError;
+                switch (error) {
+                    case WebimInternalError.INVALID_COORDINATES:
+                        constantError = MessageStream.GeolocationCallback.GeolocationError.INVALID_GEO;
+                        break;
+                    default:
+                        constantError = MessageStream.GeolocationCallback.GeolocationError.UNKNOWN;
+                }
+
+                if (callback != null) {
+                    callback.onFailed(new WebimErrorImpl<>(constantError, error));
+                }
             }
         });
     }

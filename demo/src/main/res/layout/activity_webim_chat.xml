@@ -5,5 +5,5 @@
     android:layout_height="match_parent"
     android:baselineAligned="false"
     android:id="@+id/webimChatContainer"
-    android:background="@color/colorBackground" >
+    android:background="@color/color_background" >
 </LinearLayout>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="false"
+    android:focusable="false">
+
+    <LinearLayout
+        android:id="@+id/menuItems"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:background="?attr/chv_chat_menu_background"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/relLay_new_attachment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/image_new_attachment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/text_new_attachment"
+                android:layout_marginStart="10dp"
+                android:contentDescription="@string/send_file"
+                android:paddingTop="2dp"
+                app:tint="?attr/chv_text_dark"
+                app:srcCompat="@drawable/ic_new_attachment" />
+
+            <TextView
+                android:id="@+id/text_new_attachment"
+                style="@android:style/TextAppearance.Medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_toEndOf="@id/image_new_attachment"
+                android:text="@string/send_file"
+                android:textColor="?attr/chv_text_dark" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relLay_rate_operator"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/image_rate_operator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/text_rate_operator"
+                android:layout_alignBottom="@+id/text_rate_operator"
+                android:layout_marginStart="10dp"
+                android:contentDescription="@string/rate_operator"
+                app:tint="?attr/chv_text_dark"
+                app:srcCompat="@drawable/ic_star" />
+
+            <TextView
+                android:id="@+id/text_rate_operator"
+                style="@android:style/TextAppearance.Medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_toEndOf="@id/image_rate_operator"
+                android:text="@string/rate_operator"
+                android:textColor="?attr/chv_text_dark" />
+        </RelativeLayout>
+    </LinearLayout>
+</FrameLayout>

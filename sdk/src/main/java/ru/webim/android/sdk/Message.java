@@ -8,9 +8,9 @@ import java.util.List;
 import ru.webim.android.sdk.impl.MessageReaction;
 
 /**
- * Abstracts a single message in the message history. A message is an immutable object. It means that for changing 
+ * Abstracts a single message in the message history. A message is an immutable object. It means that for changing
  * some of the message fields there will be created a new object. That is why messages can be compared by using ({@code equals}) for searching messages
- * with the same set of fields or by id ({@code msg1.getId().equals(msg2.getId())}) for searching logically identical messages. Id is formed 
+ * with the same set of fields or by id ({@code msg1.getId().equals(msg2.getId())}) for searching logically identical messages. Id is formed
  * on the client side when sending a message ({@link MessageStream#sendMessage} or {@link MessageStream#sendFile}).
  */
 public interface Message {
@@ -60,7 +60,7 @@ public interface Message {
     @NonNull String getText();
 
     /**
-     * @return {@link SendStatus#SENT} if a message had been sent to the server, was received by the server and was 
+     * @return {@link SendStatus#SENT} if a message had been sent to the server, was received by the server and was
 	 * delivered to all the clients;
      * {@link SendStatus#SENDING} if not
      */
@@ -193,7 +193,7 @@ public interface Message {
 
     /**
      * Until a message will be sent to the server, will have been received by the server and will have been spreaded among clients, we can
-	 * see the message as "being sent", at the same time {@link Message#getSendStatus()} will return {@link SendStatus#SENDING}. 
+	 * see the message as "being sent", at the same time {@link Message#getSendStatus()} will return {@link SendStatus#SENDING}.
 	 * In other cases - {@link SendStatus#SENT}
 	 */
     enum SendStatus {
@@ -277,7 +277,7 @@ public interface Message {
      */
     interface FileInfo {
         /**
-         * A URL of a file. 
+         * A URL of a file.
 		 * Notice that this URL is short-lived and is tied to a session.
          * @return url of the file
          */
@@ -432,7 +432,7 @@ public interface Message {
         /**
          * @return List of buttons from keyboard item
          */
-        @Nullable List<List<KeyboardButtons>> getButtons();
+        @Nullable List<List<KeyboardButton>> getButtons();
 
         /**
          * @return state from keyboard item
@@ -472,7 +472,7 @@ public interface Message {
      * Contains information about buttons in keyboard item.
      * @see Keyboard#getButtons()
      */
-    interface KeyboardButtons {
+    interface KeyboardButton {
         /**
          * @return the id of the button in the keyboard item that will be shown in the chat
          */
@@ -489,7 +489,12 @@ public interface Message {
         @Nullable Configuration getConfiguration();
 
         /**
-         * @see KeyboardButtons#getConfiguration()
+         * @return the params of the button
+         */
+        @Nullable Params getParams();
+
+        /**
+         * @see KeyboardButton#getConfiguration()
          */
         interface Configuration {
 
@@ -517,14 +522,42 @@ public interface Message {
                 INSERT_BUTTON
             }
 
-
             /**
-             * @see Configuration#getState() ()
+             * @see Configuration#getState()
              */
             enum State {
                 SHOWING,
                 SHOWING_SELECTED,
                 HIDDEN
+            }
+        }
+
+        /**
+         * @see KeyboardButton#getParams()
+         */
+        interface Params {
+
+            /**
+             * @return params type
+             */
+            Type getType();
+
+            /**
+             * @return params action
+             */
+            String getAction();
+
+            /**
+             * @return params color
+             */
+            String getColor();
+
+            /**
+             * @see Params#getType()
+             */
+            enum Type {
+                URL,
+                ACTION
             }
         }
     }
@@ -554,7 +587,7 @@ public interface Message {
          * @return the button that was pressed in keyboard item
          */
         @Nullable
-        KeyboardButtons getButtons();
+        KeyboardButton getButtons();
 
         /**
          * @return the message id that was pressed in keyboard item

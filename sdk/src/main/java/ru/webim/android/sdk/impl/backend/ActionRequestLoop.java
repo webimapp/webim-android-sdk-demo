@@ -58,27 +58,19 @@ public class ActionRequestLoop extends AbstractRequestLoop {
                     } else {
                         running = false;
 
-                        callbackExecutor.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                errorListener.onError(
-                                        e.getRequest().request().url().toString(),
-                                        e.getError(),
-                                        e.getHttpCode()
-                                );
-                            }
-                        });
+                        callbackExecutor.execute(() -> errorListener.onError(
+                                e.getRequest().request().url().toString(),
+                                e.getError(),
+                                e.getHttpCode()
+                        ));
                     }
                 } catch (InterruptedIOException e) {
                     WebimInternalLog.getInstance().log(e.toString(),
                             Webim.SessionBuilder.WebimLogVerbosityLevel.DEBUG);
                     final WebimRequest<?> request = lastRequest;
-                    callbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (request != null) {
-                                request.handleError(NotFatalErrorHandler.NotFatalErrorType.SOCKET_TIMEOUT_EXPIRED.toString());
-                            }
+                    callbackExecutor.execute(() -> {
+                        if (request != null) {
+                            request.handleError(NotFatalErrorHandler.NotFatalErrorType.SOCKET_TIMEOUT_EXPIRED.toString());
                         }
                     });
                     this.lastRequest = null;
@@ -115,23 +107,13 @@ public class ActionRequestLoop extends AbstractRequestLoop {
             performRequestAndCallback(currentAuthData, currentRequest);
         } catch (final FileNotFoundException exception) {
             final WebimRequest<?> callback = currentRequest;
-            callbackExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    callback.handleError(WebimInternalError.FILE_NOT_FOUND);
-                }
-            });
+            callbackExecutor.execute(() -> callback.handleError(WebimInternalError.FILE_NOT_FOUND));
         } catch (InterruptedIOException exception) {
             if (exception instanceof SocketTimeoutException) {
                 throw exception;
             } else {
                 final WebimRequest<?> callback = currentRequest;
-                callbackExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.handleError(WebimInternalError.CONNECTION_TIMEOUT);
-                    }
-                });
+                callbackExecutor.execute(() -> callback.handleError(WebimInternalError.CONNECTION_TIMEOUT));
             }
         } catch (AbortByWebimErrorException exception) {
             if ((exception.getError() != null)
@@ -139,12 +121,7 @@ public class ActionRequestLoop extends AbstractRequestLoop {
                 if (currentRequest.hasCallback) {
                     final WebimRequest<?> callback = currentRequest;
                     final String error = exception.getError();
-                    callbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            callback.handleError(error);
-                        }
-                    });
+                    callbackExecutor.execute(() -> callback.handleError(error));
                 } // Else ignore.
             } else {
                 throw exception;
@@ -160,12 +137,7 @@ public class ActionRequestLoop extends AbstractRequestLoop {
 
         if (currentRequest.hasCallback) {
             final WebimRequest<T> callback = currentRequest;
-            callbackExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    callback.runCallback(response);
-                }
-            });
+            callbackExecutor.execute(() -> callback.runCallback(response));
         }
     }
 

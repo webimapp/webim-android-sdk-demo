@@ -24,8 +24,7 @@ public interface MessageHolder {
 
     void onChatReceive(@Nullable ChatItem oldChat,
                        @Nullable ChatItem newChat,
-                       List<? extends MessageImpl> newMessages,
-                       boolean isFullUpdate);
+                       List<? extends MessageImpl> newMessages);
 
     void onMessageAdded(@NonNull MessageImpl msg);
 

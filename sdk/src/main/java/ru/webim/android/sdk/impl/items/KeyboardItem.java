@@ -31,6 +31,8 @@ public final class KeyboardItem {
         private String text;
         @SerializedName("config")
         private Configuration configuration;
+        @SerializedName("params")
+        private Params params;
 
         public String getId(){
             return id;
@@ -42,6 +44,10 @@ public final class KeyboardItem {
 
         public Configuration getConfiguration() {
             return configuration;
+        }
+
+        public Params getParams() {
+            return params;
         }
 
         public static final class Configuration {
@@ -71,6 +77,34 @@ public final class KeyboardItem {
                 SHOWING_SELECTED,
                 @SerializedName("hidden")
                 HIDDEN,
+            }
+        }
+
+        public static final class Params {
+            @SerializedName("type")
+            private Type type;
+            @SerializedName("action")
+            private String action;
+            @SerializedName("color")
+            private String color;
+
+            public Type getType() {
+                return type;
+            }
+
+            public String getAction() {
+                return action;
+            }
+
+            public String getColor() {
+                return color;
+            }
+
+            public enum Type {
+                @SerializedName("url")
+                URL,
+                @SerializedName("action")
+                ACTION
             }
         }
     }

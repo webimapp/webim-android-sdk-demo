@@ -5,10 +5,4 @@
     <item
         android:drawable="@color/colorPrimary"/>
 
-    <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@drawable/logo_webim"/>
-    </item>
-
 </layer-list>

@@ -3,33 +3,10 @@ package ru.webim.android.sdk.impl;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import ru.webim.android.sdk.Department;
-import ru.webim.android.sdk.Message;
-import ru.webim.android.sdk.MessageListener;
-import ru.webim.android.sdk.MessageStream;
-import ru.webim.android.sdk.MessageTracker;
-import ru.webim.android.sdk.Operator;
-import ru.webim.android.sdk.Survey;
-import ru.webim.android.sdk.UploadedFile;
-import ru.webim.android.sdk.impl.backend.DefaultCallback;
-import ru.webim.android.sdk.impl.backend.LocationSettingsImpl;
-import ru.webim.android.sdk.impl.backend.SendKeyboardErrorListener;
-import ru.webim.android.sdk.impl.backend.SendOrDeleteMessageInternalCallback;
-import ru.webim.android.sdk.impl.backend.SurveyFinishCallback;
-import ru.webim.android.sdk.impl.backend.SurveyQuestionCallback;
-import ru.webim.android.sdk.impl.backend.WebimActions;
-import ru.webim.android.sdk.impl.backend.WebimInternalError;
-import ru.webim.android.sdk.impl.items.ChatItem;
-import ru.webim.android.sdk.impl.items.DepartmentItem;
-import ru.webim.android.sdk.impl.items.OnlineStatusItem;
-import ru.webim.android.sdk.impl.items.RatingItem;
-import ru.webim.android.sdk.impl.items.SurveyItem;
-import ru.webim.android.sdk.impl.items.VisitSessionStateItem;
-import ru.webim.android.sdk.impl.items.delta.DeltaFullUpdate;
-import ru.webim.android.sdk.impl.items.responses.LocationSettingsResponse;
-import ru.webim.android.sdk.impl.items.responses.SearchResponse;
-
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +16,34 @@ import java.util.regex.Pattern;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import ru.webim.android.sdk.Department;
+import ru.webim.android.sdk.Message;
+import ru.webim.android.sdk.MessageListener;
+import ru.webim.android.sdk.MessageStream;
+import ru.webim.android.sdk.MessageTracker;
+import ru.webim.android.sdk.Operator;
+import ru.webim.android.sdk.Survey;
+import ru.webim.android.sdk.UploadedFile;
+import ru.webim.android.sdk.impl.backend.LocationSettingsImpl;
+import ru.webim.android.sdk.impl.backend.SendKeyboardErrorListener;
+import ru.webim.android.sdk.impl.backend.WebimActions;
+import ru.webim.android.sdk.impl.backend.WebimInternalError;
+import ru.webim.android.sdk.impl.backend.callbacks.DefaultCallback;
+import ru.webim.android.sdk.impl.backend.callbacks.SendOrDeleteMessageInternalCallback;
+import ru.webim.android.sdk.impl.backend.callbacks.SurveyFinishCallback;
+import ru.webim.android.sdk.impl.backend.callbacks.SurveyQuestionCallback;
+import ru.webim.android.sdk.impl.items.AccountConfigItem;
+import ru.webim.android.sdk.impl.items.ChatItem;
+import ru.webim.android.sdk.impl.items.DepartmentItem;
+import ru.webim.android.sdk.impl.items.LocationSettingsItem;
+import ru.webim.android.sdk.impl.items.OnlineStatusItem;
+import ru.webim.android.sdk.impl.items.RatingItem;
+import ru.webim.android.sdk.impl.items.SurveyItem;
+import ru.webim.android.sdk.impl.items.VisitSessionStateItem;
+import ru.webim.android.sdk.impl.items.delta.DeltaFullUpdate;
+import ru.webim.android.sdk.impl.items.requests.AutocompleteRequest;
+import ru.webim.android.sdk.impl.items.responses.SearchResponse;
+import ru.webim.android.sdk.impl.items.responses.ServerSettingsResponse;
 
 public class MessageStreamImpl implements MessageStream {
     private final AccessChecker accessChecker;
@@ -50,9 +55,11 @@ public class MessageStreamImpl implements MessageStream {
     private final MessageFactories.SendingFactory sendingMessageFactory;
     private @Nullable ChatItem chat;
     private @Nullable Operator currentOperator;
-    private CurrentOperatorChangeListener currentOperatorListener;
+    private ServerSettingsResponse serverSettings;
+    private String location;
+    private List<CurrentOperatorChangeListener> currentOperatorListeners = new ArrayList<>();
     private List<Department> departmentList;
-    private DepartmentListChangeListener departmentListChangeListener;
+    private List<DepartmentListChangeListener> departmentListChangeListeners = new ArrayList<>();
     private @NonNull VisitSessionStateItem visitSessionState = VisitSessionStateItem.UNKNOWN;
     private boolean isProcessingChatOpen;
     private @NonNull ChatItem.ItemChatState lastChatState = ChatItem.ItemChatState.UNKNOWN;
@@ -61,19 +68,16 @@ public class MessageStreamImpl implements MessageStream {
     private OnlineStatusChangeListener onlineStatusChangeListener;
     private MessageFactories.OperatorFactory operatorFactory;
     private SurveyFactory surveyFactory;
-    private @Nullable OperatorTypingListener operatorTypingListener;
+    private List<OperatorTypingListener> operatorTypingListeners = new ArrayList<>();
     private String serverUrlString;
-    private @Nullable ChatStateListener stateListener;
+    private List<ChatStateListener> stateListeners = new ArrayList<>();
     private long unreadByOperatorTimestamp = -1;
-    private @Nullable UnreadByOperatorTimestampChangeListener
-            unreadByOperatorTimestampChangeListener;
+    private @Nullable UnreadByOperatorTimestampChangeListener unreadByOperatorTimestampChangeListener;
     private int unreadByVisitorMessageCount = -1;
-    private @Nullable UnreadByVisitorMessageCountChangeListener
-            unreadByVisitorMessageCountChangeListener;
+    private @Nullable UnreadByVisitorMessageCountChangeListener unreadByVisitorMessageCountChangeListener;
     private long unreadByVisitorTimestamp = -1;
-    private @Nullable UnreadByVisitorTimestampChangeListener
-            unreadByVisitorTimestampChangeListener;
-    private VisitSessionStateListener visitSessionStateListener;
+    private @Nullable UnreadByVisitorTimestampChangeListener unreadByVisitorTimestampChangeListener;
+    private List<VisitSessionStateListener> visitSessionStateListeners = new ArrayList<>();
     private GreetingMessageListener greetingMessageListener;
     private SurveyController surveyController;
     private String onlineStatus = "unknown";
@@ -88,7 +92,8 @@ public class MessageStreamImpl implements MessageStream {
             WebimActions actions,
             MessageHolder messageHolder,
             MessageComposingHandler messageComposingHandler,
-            LocationSettingsHolder locationSettingsHolder
+            LocationSettingsHolder locationSettingsHolder,
+            String location
     ) {
         this.serverUrlString = serverUrlString;
         this.currentChatMessageMapper = currentChatMessageMapper;
@@ -100,6 +105,7 @@ public class MessageStreamImpl implements MessageStream {
         this.messageHolder = messageHolder;
         this.messageComposingHandler = messageComposingHandler;
         this.locationSettingsHolder = locationSettingsHolder;
+        this.location = location;
     }
 
     @NonNull
@@ -156,61 +162,92 @@ public class MessageStreamImpl implements MessageStream {
     }
 
     @Override
+    public void startChat(ChatStartedCallback chatStartedCallback) {
+        startChatInternally(null, null, null, chatStartedCallback);
+    }
+
+    @Override
     public void startChat() {
-        startChatWithFirstQuestionCustomFieldsDepartmentKey(null, null, null);
+        startChatInternally(null, null, null, null);
+    }
+
+    @Nullable
+    @Override
+    public String getChatId() {
+        return chat != null ? chat.getId() : null;
     }
 
     @Override
     public void startChatWithDepartmentKey(@Nullable String departmentKey) {
-        startChatWithFirstQuestionCustomFieldsDepartmentKey(null, null, departmentKey);
+        startChatInternally(null, null, departmentKey, null);
     }
 
     @Override
-    public void startChatWithFirstQuestion(@Nullable String firstQuestion) {
-        startChatWithFirstQuestionCustomFieldsDepartmentKey(firstQuestion, null, null);
+    public String startChatWithFirstQuestion(@Nullable String firstQuestion) {
+        return startChatInternally(firstQuestion, null, null, null);
     }
 
     @Override
     public void startChatWithCustomFields(@Nullable String customFields) {
-        startChatWithFirstQuestionCustomFieldsDepartmentKey(null, customFields, null);
+        startChatInternally(null, customFields, null, null);
     }
 
     @Override
-    public void startChatWithDepartmentKeyFirstQuestion(@Nullable String departmentKey,
+    public String startChatWithDepartmentKeyFirstQuestion(@Nullable String departmentKey,
                                                         @Nullable String firstQuestion) {
-        startChatWithFirstQuestionCustomFieldsDepartmentKey(firstQuestion, null, departmentKey);
+        return startChatInternally(firstQuestion, null, departmentKey, null);
     }
 
     @Override
-    public void startChatWithCustomFieldsFirstQuestion(@Nullable String customFields,
+    public String startChatWithCustomFieldsFirstQuestion(@Nullable String customFields,
                                                        @Nullable String firstQuestion) {
-        startChatWithFirstQuestionCustomFieldsDepartmentKey(firstQuestion, customFields, null);
+        return startChatInternally(firstQuestion, customFields, null, null);
     }
 
     @Override
-    public void startChatWithCustomFieldsDepartmentKey(@Nullable String customFields,
+    public String startChatWithCustomFieldsDepartmentKey(@Nullable String customFields,
                                                        @Nullable String departmentKey) {
-        startChatWithFirstQuestionCustomFieldsDepartmentKey(null, customFields, departmentKey);
+        return startChatInternally(null, customFields, departmentKey, null);
     }
 
     @Override
-    public void startChatWithFirstQuestionCustomFieldsDepartmentKey(
+    public String startChatWithFirstQuestionCustomFieldsDepartmentKey(
             @Nullable String firstQuestion,
             @Nullable String customFields,
             @Nullable String departmentKey
     ) {
+        return startChatInternally(firstQuestion, customFields, departmentKey, null);
+    }
+
+    private String startChatInternally(
+        @Nullable String firstQuestion,
+        @Nullable String customFields,
+        @Nullable String departmentKey,
+        @Nullable ChatStartedCallback callback
+    ) {
+
         accessChecker.checkAccess();
 
+        String clientSideId = null;
         if (((lastChatState.isClosed())
-                || (visitSessionState == VisitSessionStateItem.OFFLINE_MESSAGE))
-                && !isProcessingChatOpen) {
+            || (visitSessionState == VisitSessionStateItem.OFFLINE_MESSAGE))
+            && !isProcessingChatOpen) {
             isProcessingChatOpen = true;
+            clientSideId = StringId.generateClientSide();
 
-            actions.startChat(StringId.generateClientSide(),
-                    departmentKey,
-                    firstQuestion,
-                    customFields);
+            actions.startChat(
+                clientSideId,
+                departmentKey,
+                firstQuestion,
+                customFields,
+                response -> {
+                    if (callback != null) {
+                        callback.chatStarted();
+                    }
+                }
+            );
         }
+        return clientSideId;
     }
 
     @Override
@@ -402,12 +439,12 @@ public class MessageStreamImpl implements MessageStream {
         return true;
     }
 
-    public void sendKeyboardRequest(@NonNull String requestMessageCurrentChatId,
+    public void sendKeyboardRequest(@NonNull String messageServerSideId,
                                     @NonNull String buttonId,
                                     @Nullable final SendKeyboardCallback sendKeyboardCallback) {
         final Message.Id messageId = StringId.generateForMessage();
         actions.sendKeyboard(
-                requestMessageCurrentChatId,
+            messageServerSideId,
                 buttonId,
                 new SendKeyboardErrorListener() {
                     @Override
@@ -652,10 +689,74 @@ public class MessageStreamImpl implements MessageStream {
 
     @NonNull
     @Override
-    public Message.Id uploadFilesToServer(@NonNull File file,
-                                          @NonNull String fileName,
-                                          @NonNull String mimeType,
-                                          @Nullable final UploadFileToServerCallback uploadFileToServerCallback) {
+    public Message.Id sendFile(@NonNull FileDescriptor fd, @NonNull String fileName, @NonNull String mimeType, @Nullable SendFileCallback callback) {
+        fd.getClass(); // NPE
+        fileName.getClass(); // NPE
+        mimeType.getClass(); // NPE
+
+        accessChecker.checkAccess();
+
+        startChatWithDepartmentKeyFirstQuestion(null, null);
+
+        final Message.Id id = StringId.generateForMessage();
+        if (!patternMatches(fileName)) {
+            if (callback != null) {
+                callback.onFailure(id, (new WebimErrorImpl<>(
+                    SendFileCallback.SendFileError.FILE_NAME_INCORRECT,
+                    WebimInternalError.FILE_NAME_INCORRECT)));
+            }
+            return id;
+        }
+
+        try (FileInputStream is = new FileInputStream(fd)) {
+            if (is.available() == 0) {
+                if (callback != null) {
+                    callback.onFailure(id, (new WebimErrorImpl<>(
+                        SendFileCallback.SendFileError.FILE_IS_EMPTY, null
+                    )));
+                }
+                return id;
+            }
+        } catch (IOException exc) {
+            if (callback != null) {
+                callback.onFailure(id, (new WebimErrorImpl<>(
+                    SendFileCallback.SendFileError.FILE_IS_EMPTY, null)));
+            }
+            return id;
+        }
+
+        messageHolder.onSendingMessage(sendingMessageFactory.createFile(id, fileName));
+        actions.sendFile(
+            RequestBody.create(fd, MediaType.parse(mimeType)),
+            fileName,
+            id.toString(),
+            new SendOrDeleteMessageInternalCallback() {
+                @Override
+                public void onSuccess(String response) {
+                    if (callback != null) {
+                        callback.onSuccess(id);
+                    }
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    messageHolder.onMessageSendingCancelled(id);
+
+                    if (callback != null) {
+                        callback.onFailure(id, new WebimErrorImpl<>(getFileError(error), error));
+                    }
+                }
+            });
+
+        return id;
+    }
+
+    @NonNull
+    @Override
+    public Message.Id uploadFileToServer(@NonNull File file,
+                                         @NonNull String fileName,
+                                         @NonNull String mimeType,
+                                         @Nullable final UploadFileToServerCallback uploadFileToServerCallback) {
         file.getClass(); // NPE
         fileName.getClass(); // NPE
         mimeType.getClass(); // NPE
@@ -697,8 +798,8 @@ public class MessageStreamImpl implements MessageStream {
     }
 
     @Override
-    public void deleteUploadedFiles(@NonNull String fileGuid,
-                                    @Nullable final DeleteUploadedFileCallback deleteUploadedFileCallback) {
+    public void deleteUploadedFile(@NonNull String fileGuid,
+                                   @Nullable final DeleteUploadedFileCallback deleteUploadedFileCallback) {
         accessChecker.checkAccess();
         actions.deleteUploadedFile(
                 fileGuid,
@@ -768,24 +869,35 @@ public class MessageStreamImpl implements MessageStream {
     }
 
     @Override
-    public void getRawLocationConfig(@NonNull String location, @NonNull RawLocationConfigCallback callback) {
+    public void getLocationConfig(@NonNull String location, @NonNull LocationConfigCallback callback) {
         accessChecker.checkAccess();
 
-        actions.getLocationConfig(location, new DefaultCallback<LocationSettingsResponse>() {
-            @Override
-            public void onSuccess(LocationSettingsResponse response) {
-                if (response == null) {
-                    callback.onFailure();
-                    return;
-                }
-                String jsonResponse = InternalUtils.convertToString(response.getRawLocationSettings());
-                if (InternalUtils.isValidJson(jsonResponse)) {
-                    callback.onSuccess(jsonResponse);
-                } else {
-                    callback.onFailure();
-                }
+        if (serverSettings != null) {
+            LocationSettingsItem locationSettings = serverSettings.getLocationSettings();
+            if (locationSettings == null) {
+                callback.onFailure();
+            } else {
+                callback.onSuccess(locationSettings);
             }
+            return;
+        }
+
+        actions.getAccountConfig(location, response -> {
+            serverSettings = response;
+            LocationSettingsItem settings;
+            if (response == null || (settings = response.getLocationSettings()) == null) {
+                callback.onFailure();
+                return;
+            }
+            callback.onSuccess(settings);
         });
+    }
+
+    @Override
+    public void sendGeolocation(float latitude, float longitude, @Nullable GeolocationCallback callback) {
+        accessChecker.checkAccess();
+
+        actions.sendGeolocation(latitude, longitude, callback);
     }
 
     @NonNull
@@ -801,31 +913,81 @@ public class MessageStreamImpl implements MessageStream {
     @Override
     public void
     setVisitSessionStateListener(@NonNull VisitSessionStateListener visitSessionStateListener) {
-        this.visitSessionStateListener = visitSessionStateListener;
+        addVisitSessionStateListener(visitSessionStateListener);
+    }
+
+    @Override
+    public void addVisitSessionStateListener(@NonNull VisitSessionStateListener visitSessionStateListener) {
+        visitSessionStateListeners.add(visitSessionStateListener);
+    }
+
+    @Override
+    public void removeVisitSessionStateListener(@NonNull VisitSessionStateListener visitSessionStateListener) {
+        visitSessionStateListeners.remove(visitSessionStateListener);
     }
 
     @Override
     public void setCurrentOperatorChangeListener(@NonNull CurrentOperatorChangeListener listener) {
+        addCurrentOperatorChangeListener(listener);
+    }
+
+    @Override
+    public void addCurrentOperatorChangeListener(@NonNull CurrentOperatorChangeListener listener) {
         listener.getClass(); // NPE
-        this.currentOperatorListener = listener;
+        currentOperatorListeners.add(listener);
+    }
+
+    @Override
+    public void removeCurrentOperatorChangeListener(@NonNull CurrentOperatorChangeListener listener) {
+        listener.getClass(); // NPE
+        currentOperatorListeners.remove(listener);
     }
 
     @Override
     public void setChatStateListener(@NonNull ChatStateListener stateListener) {
+        addChatStateListener(stateListener);
+    }
+
+    @Override
+    public void addChatStateListener(@NonNull ChatStateListener stateListener) {
         stateListener.getClass(); // NPE
-        this.stateListener = stateListener;
+        stateListeners.add(stateListener);
+    }
+
+    @Override
+    public void removeChatStateListener(@NonNull ChatStateListener stateListener) {
+        stateListeners.remove(stateListener);
     }
 
     @Override
     public void setOperatorTypingListener(@NonNull OperatorTypingListener operatorTypingListener) {
-        operatorTypingListener.getClass(); // NPE
-        this.operatorTypingListener = operatorTypingListener;
+        addOperatorTypingListener(operatorTypingListener);
     }
 
     @Override
-    public void setDepartmentListChangeListener
-            (@NonNull DepartmentListChangeListener departmentListChangeListener) {
-        this.departmentListChangeListener = departmentListChangeListener;
+    public void addOperatorTypingListener(@NonNull OperatorTypingListener operatorTypingListener) {
+        operatorTypingListener.getClass(); // NPE
+        operatorTypingListeners.add(operatorTypingListener);
+    }
+
+    @Override
+    public void removeOperatorTypingListener(OperatorTypingListener operatorTypingListener) {
+        operatorTypingListeners.remove(operatorTypingListener);
+    }
+
+    @Override
+    public void setDepartmentListChangeListener(@NonNull DepartmentListChangeListener departmentListChangeListener) {
+        addDepartmentListChangeListener(departmentListChangeListener);
+    }
+
+    @Override
+    public void addDepartmentListChangeListener(@NonNull DepartmentListChangeListener departmentListChangeListener) {
+        departmentListChangeListeners.add(departmentListChangeListener);
+    }
+
+    @Override
+    public void removeDepartmentListChangeListener(@NonNull DepartmentListChangeListener departmentListChangeListener) {
+        departmentListChangeListeners.add(departmentListChangeListener);
     }
 
     @Override
@@ -859,18 +1021,40 @@ public class MessageStreamImpl implements MessageStream {
     }
 
     @Override
-    public void sendDialogToEmailAddress(@NonNull String email,
-                                         @NonNull final SendDialogToEmailAddressCallback sendDialogToEmailAddressCallback) {
-
+    public void autocomplete(String text, AutocompleteCallback callback) {
         accessChecker.checkAccess();
 
-        if (!lastChatState.isClosed()) {
-            actions.sendChatToEmailAddress(email, sendDialogToEmailAddressCallback);
-        } else {
-            sendDialogToEmailAddressCallback.onFailure(new WebimErrorImpl<>(
-                    SendDialogToEmailAddressCallback.SendDialogToEmailAddressError.NO_CHAT,
-                    null));
+        if (serverSettings != null) {
+            autocompleteInternal(text, callback);
+            return;
         }
+
+        actions.getAccountConfig(location, response -> {
+            serverSettings = response;
+            autocompleteInternal(text, callback);
+        });
+    }
+
+    private void autocompleteInternal(String text, AutocompleteCallback callback) {
+        AccountConfigItem settings;
+        if (serverSettings == null || (settings = serverSettings.getAccountConfig()) == null) {
+            callback.onFailure(new WebimErrorImpl<>(AutocompleteCallback.AutocompleteError.UNKNOWN, null));
+        } else {
+            String autocompleteUrl = settings.getHintsEndpoint();
+            if (autocompleteUrl == null) {
+                callback.onFailure(new WebimErrorImpl<>(AutocompleteCallback.AutocompleteError.HINTS_API_INVALID, null));
+                return;
+            }
+            actions.autocomplete(autocompleteUrl, new AutocompleteRequest(text), callback);
+        }
+    }
+
+    @Override
+    public void sendDialogToEmailAddress(@NonNull String email,
+                                         @NonNull final SendDialogToEmailAddressCallback sendDialogToEmailAddressCallback) {
+        accessChecker.checkAccess();
+
+        actions.sendChatToEmailAddress(email, sendDialogToEmailAddressCallback);
     }
 
     @Override
@@ -1050,21 +1234,20 @@ public class MessageStreamImpl implements MessageStream {
         }
     }
 
-    void onChatUpdated(@Nullable ChatItem currentChat, boolean isFullUpdate) {
+    void onChatUpdated(@Nullable ChatItem currentChat) {
         ChatItem oldChat = chat;
         chat = currentChat;
         if (!InternalUtils.equals(chat, oldChat)) {
             if (chat == null) {
-                messageHolder.onChatReceive(oldChat, null, Collections.emptyList(), isFullUpdate);
+                messageHolder.onChatReceive(oldChat, null, Collections.emptyList());
             } else {
-                messageHolder.onChatReceive(oldChat, chat, currentChatMessageMapper.mapAll(chat.getMessages()), isFullUpdate);
+                messageHolder.onChatReceive(oldChat, chat, currentChatMessageMapper.mapAll(chat.getMessages()));
             }
         } else {
             messageHolder.onChatReceive(
                 oldChat,
                 chat,
-                chat != null ? currentChatMessageMapper.mapAll(chat.getMessages()) : Collections.emptyList(),
-                isFullUpdate);
+                chat != null ? currentChatMessageMapper.mapAll(chat.getMessages()) : Collections.emptyList());
         }
 
         onOperatorUpdated(currentChat);
@@ -1084,7 +1267,7 @@ public class MessageStreamImpl implements MessageStream {
         if (!InternalUtils.equals(newOperator, currentOperator)) {
             Operator oldOperator = currentOperator;
             currentOperator = newOperator;
-            if (currentOperatorListener != null) {
+            for (CurrentOperatorChangeListener currentOperatorListener : currentOperatorListeners) {
                 currentOperatorListener.onOperatorChanged(oldOperator, newOperator);
             }
         }
@@ -1096,8 +1279,10 @@ public class MessageStreamImpl implements MessageStream {
         ChatItem.ItemChatState newState = (chat == null)
             ? ChatItem.ItemChatState.CLOSED
             : chat.getState();
-        if (stateListener != null && lastChatState != newState) {
-            stateListener.onStateChange(toPublicState(lastChatState), toPublicState(newState));
+        if (lastChatState != newState) {
+            for (ChatStateListener stateListener : stateListeners) {
+                stateListener.onStateChange(toPublicState(lastChatState), toPublicState(newState));
+            }
         }
         lastChatState = newState;
     }
@@ -1106,8 +1291,11 @@ public class MessageStreamImpl implements MessageStream {
         chat = currentChat;
 
         boolean operatorTypingStatus = currentChat != null && currentChat.isOperatorTyping();
-        if (operatorTypingListener != null && lastOperatorTypingStatus != operatorTypingStatus) {
-            operatorTypingListener.onOperatorTypingStateChanged(operatorTypingStatus);
+
+        if (lastOperatorTypingStatus != operatorTypingStatus) {
+            for (OperatorTypingListener operatorTypingListener : operatorTypingListeners) {
+                operatorTypingListener.onOperatorTypingStateChanged(operatorTypingStatus);
+            }
         }
         lastOperatorTypingStatus = operatorTypingStatus;
     }
@@ -1135,7 +1323,7 @@ public class MessageStreamImpl implements MessageStream {
         }
         this.departmentList = departmentList;
 
-        if (departmentListChangeListener != null) {
+        for (DepartmentListChangeListener departmentListChangeListener : departmentListChangeListeners) {
             departmentListChangeListener.receivedDepartmentList(departmentList);
         }
     }
@@ -1146,7 +1334,7 @@ public class MessageStreamImpl implements MessageStream {
 
         isProcessingChatOpen = false;
 
-        if (visitSessionStateListener != null) {
+        for (VisitSessionStateListener visitSessionStateListener : visitSessionStateListeners) {
             visitSessionStateListener.onStateChange(
                     toPublicVisitSessionState(previousVisitSessionState),
                     toPublicVisitSessionState(visitSessionState)
@@ -1168,7 +1356,7 @@ public class MessageStreamImpl implements MessageStream {
     }
 
     void onFullUpdate(ChatItem currentChat) {
-        onChatUpdated(currentChat, true);
+        onChatUpdated(currentChat);
     }
 
     @NonNull
@@ -1414,8 +1602,8 @@ public class MessageStreamImpl implements MessageStream {
                 return SendKeyboardCallback.SendKeyboardError.BUTTON_ID_NO_SET;
             case WebimInternalError.REQUEST_MESSAGE_ID_NOT_SET:
                 return SendKeyboardCallback.SendKeyboardError.REQUEST_MESSAGE_ID_NOT_SET;
-            case WebimInternalError.CAN_NOT_CREATE_RESPONSE:
-                return SendKeyboardCallback.SendKeyboardError.CAN_NOT_CREATE_RESPONSE;
+            case WebimInternalError.CANNOT_CREATE_RESPONSE:
+                return SendKeyboardCallback.SendKeyboardError.CANNOT_CREATE_RESPONSE;
             default:
                 return SendKeyboardCallback.SendKeyboardError.UNKNOWN;
         }

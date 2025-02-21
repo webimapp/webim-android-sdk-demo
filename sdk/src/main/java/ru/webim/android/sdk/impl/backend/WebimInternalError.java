@@ -58,12 +58,13 @@ public class WebimInternalError {
     // Rate operator errors.
 	public static final String NO_CHAT = "no-chat";
 	public static final String OPERATOR_NOT_IN_CHAT = "operator-not-in-chat";
+	public static final String OPERATOR_ALREADY_RATED = "operator-already-rated";
 	public static final String NOTE_IS_TOO_LONG = "note-is-too-long";
 
 	//Errors for sending keyboard
 	public static final String BUTTON_ID_NO_SET = "button-id-not-set";
 	public static final String REQUEST_MESSAGE_ID_NOT_SET = "request-message-id-not-set";
-	public static final String CAN_NOT_CREATE_RESPONSE = "can-not-create-response";
+	public static final String CANNOT_CREATE_RESPONSE = "cannot-create-response";
 
 	//Errors for sending chat on email
 	public  static final String SENT_TOO_MANY_TIMES = "chat-history-sent-too-many-times";
@@ -79,4 +80,7 @@ public class WebimInternalError {
 
 	//Errors for Delete files
 	public static final String FILE_HAS_BEEN_SENT = "file-has-been-sent";
+
+	//Geo errors
+	public static final String INVALID_COORDINATES = "invalid-coordinates-received";
 }

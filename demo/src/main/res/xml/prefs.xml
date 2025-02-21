@@ -5,17 +5,17 @@
         android:defaultValue="demo"
         android:inputType="textUri"
         android:key="account"
-        android:textColor="@color/colorText"
+        android:textColor="@color/text_color"
         android:textColorHighlight="#5C5F8A"
-        android:textColorHint="@color/colorHintText"
+        android:textColorHint="@color/text_hint"
         android:summary="@string/prefs_account_summary"
         android:title="@string/prefs_account_title"/>
     <EditTextPreference
         android:key="location"
         android:defaultValue="mobile"
-        android:textColor="@color/colorText"
+        android:textColor="@color/text_color"
         android:textColorHighlight="#5C5F8A"
-        android:textColorHint="@color/colorHintText"
+        android:textColorHint="@color/text_hint"
         android:summary="@string/prefs_location_summary"
         android:title="@string/prefs_location_title">
     </EditTextPreference>
@@ -23,9 +23,9 @@
         android:key="fcm"
         android:defaultValue="true"
         android:summary="@string/prefs_notifications_summary"
-        android:textColor="@color/colorText"
+        android:textColor="@color/text_color"
         android:textColorHighlight="#5C5F8A"
-        android:textColorHint="@color/colorHintText"
+        android:textColorHint="@color/text_hint"
         android:title="@string/prefs_notifications_title">
     </CheckBoxPreference>
 </PreferenceScreen>

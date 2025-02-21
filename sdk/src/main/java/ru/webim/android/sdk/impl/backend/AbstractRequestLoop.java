@@ -229,6 +229,13 @@ public abstract class AbstractRequestLoop {
             } else if ((httpCode != 200) && (httpCode != 502)) {
                 // 502 Bad Gateway - always the same as 'server-not-ready'
 
+                if (httpCode == 400) {
+                    throw new AbortByWebimErrorException(
+                        request,
+                        WebimInternalError.CANNOT_CREATE_RESPONSE,
+                        httpCode
+                    );
+                }
                 if (httpCode == 415) {
                     throw new AbortByWebimErrorException(
                             request,
